@@ -1,8 +1,20 @@
 package edu.usfca.cs272;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Scanner;
 
 /**
  * Class responsible for running this project based on the provided command-line
@@ -12,41 +24,137 @@ import java.util.Arrays;
  * @author CS 272 Software Development (University of San Francisco)
  * @version Fall 2022
  */
-public class Driver {
+public class Driver 
+{
+	// Homework 1
+	static ArgumentParser parse = new ArgumentParser();
+
+	// Homework 4
+	static PrettyJsonWriter json = new PrettyJsonWriter();
+
 	/**
 	 * Initializes the classes necessary based on the provided command-line
 	 * arguments. This includes (but is not limited to) how to build or search an
 	 * inverted index.
 	 *
 	 * @param args flag/value pairs used to start this program
+	 * @throws IOException
 	 */
-	public static void main(String[] args) {
-		// store initial start time
-		Instant start = Instant.now();
+	public static void main(String[] args) 
+	{
+		// Stores the Mapping from Words to the Documents and Positions
+		HashMap<String, HashMap<String, ArrayList<Integer>>> inverted_index = new HashMap<String, HashMap<String, ArrayList<Integer>>>();
 
-		// TODO Fill in and modify as needed
-		System.out.println(Arrays.toString(args));
+		try 
+		{
+			// Parses the Arguments to Flags/Values
+			parse.parse(args);
+			
+			// Value of the Specified Flag
+			Path path = parse.getPath("-text");
+			
+			// Created an ArrayList to Store all the Paths
+			ArrayList<Path> path_list = new ArrayList<>();
 
-		// calculate time elapsed and output
-		long elapsed = Duration.between(start, Instant.now()).toMillis();
-		double seconds = (double) elapsed / Duration.ofSeconds(1).toMillis();
-		System.out.printf("Elapsed: %f seconds%n", seconds);
+			// If the Path is Empty, Output an Empty String
+			if (parse.getString("-text") == null) 
+			{
+				System.out.println("");
+				return;
+			}
+			
+			// Loop through all the Current Directories/Files and Adds all the Files into "path_list" ArrayList
+			FileFinder.listSourceFiles(path, 0, path_list);
+			
+			/* -------------------- Inverted Index Formatting -------------------- */
+			
+			// Loop through all the Paths/Files in the "path_list" ArrayList
+			for (Path p: path_list) 
+			{
+				// Add all the Cleaned and Stemmed English Words in the Current File in a new ArrayList 
+				ArrayList<String> list = WordCleaner.listStems(p);
+
+				// Loop through all the Cleaned Words in the Current "list" ArrayList
+				for (int i = 0; i < list.size(); i += 1) 
+				{
+					// Current Word
+					String word = list.get(i);
+
+					// Add Current "word" as a Key to the "inverted_index"
+					inverted_index.putIfAbsent(word, new HashMap<String, ArrayList<Integer>>()); 
+
+					// Grabs the HashMap which is the Value from the "inverted_index": Document, Positions
+					HashMap<String, ArrayList<Integer>> values = inverted_index.get(word);
+
+					// The Filename
+					String document = p.toString();
+
+					// Store the Document as a Key to the HashMap "values" which is the Values of the "inverted_index"
+					values.putIfAbsent(document, new ArrayList<Integer>());
+
+					// Get the Position of the Current "word" in the Document and Add it to the HashMap as a Value: Add 1 because the Index "i" begins at 0
+					values.get(document).add(i + 1);
+				}
+			}
+			
+			/* -------------------- JSON Formatting -------------------- */
+
+			String json_file = "";
+
+			// Checks if the "inverted_index" Should be Output to a JSON File  
+			if (parse.hasValue("-index")) 
+			{
+				// Gets the Value of the Specified File/Directory
+				json_file = parse.getString("-index");
+			} 
+			else 
+			{
+				// Default Output Path
+				json_file = "index.json";
+			}
+			
+			// Writer
+			PrintWriter writer = new PrintWriter(json_file);
+
+			// An ArrayList of the Keys (Words) in "inverted_index"
+			ArrayList<String> sorted_keys = new ArrayList<String>(inverted_index.keySet());
+
+			// Sort the Keys in Alphabetical Order
+			Collections.sort(sorted_keys);
+			
+			// Formatting the Writer
+			writer.write("{\n");
+
+			int length = sorted_keys.size();
+			int index = 0;
+
+			// Loop through the "sorted_keys" ArrayList
+			for (String key : sorted_keys) 
+			{
+				// Add the Word to the Writer
+				PrettyJsonWriter.writeIndent("\"" + key + "\": ", writer, 1);
+
+				// Add the Inner HashMap (Document and Positions) to the Writer
+				PrettyJsonWriter.writeNestedArrays(inverted_index.get(key), writer, 1);
+
+				// Don't Add Comma to Last Element
+				if (index != length - 1) 
+				{
+					writer.write(",");
+				}
+
+				writer.write("\n");
+				index += 1;
+			}
+
+			writer.write("}");
+			writer.close();
+
+		} 
+		catch (Exception e) 
+		{
+			e.printStackTrace();
+		}
 	}
-
-	/*
-	 * Generally, "Driver" classes are responsible for setting up and calling
-	 * other classes, usually from a main() method that parses command-line
-	 * parameters. Generalized reusable code are usually placed outside of the
-	 * Driver class. They are sometimes called "Main" classes too, since they
-	 * usually include the main() method.
-	 *
-	 * If the driver were only responsible for a single class, we use that class
-	 * name. For example, "TaxiDriver" is what we would name a driver class that
-	 * just sets up and calls the "Taxi" class.
-	 *
-	 * The starter code (calculating elapsed time) is not necessary. It can be
-	 * removed from the main method.
-	 *
-	 * TODO Delete this after reading.
-	 */
 }
+
