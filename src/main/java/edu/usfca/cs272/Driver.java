@@ -1,35 +1,30 @@
 package edu.usfca.cs272;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.Writer;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Scanner;
 
 /**
  * Class responsible for running this project based on the provided command-line
  * arguments. See the README for details.
  *
- * @author TODO Nino Estrada
+ * @author Nino Estrada
  * @author CS 272 Software Development (University of San Francisco)
  * @version Fall 2022
  */
 public class Driver 
 {
-	// Homework 1
+	/**
+	 * Homework 1: Argument Parser
+	 */
 	static ArgumentParser parse = new ArgumentParser();
 
-	// Homework 4
+	
+	/**
+	 * Homework 4: Pretty Json Writer
+	 */
 	static PrettyJsonWriter json = new PrettyJsonWriter();
 
 	/**
@@ -38,7 +33,6 @@ public class Driver
 	 * inverted index.
 	 *
 	 * @param args flag/value pairs used to start this program
-	 * @throws IOException
 	 */
 	public static void main(String[] args) 
 	{

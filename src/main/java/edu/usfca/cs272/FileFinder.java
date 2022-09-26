@@ -5,14 +5,22 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
 import java.util.List;
 
 
+/**
+ * File Finder
+ *
+ */
 public class FileFinder 
 {
+	/**
+	 * @param path File
+	 * @param depth How Deep is
+	 * @param path_list ArrayList to Store all Source Files
+	 * @throws Exception if no such file exists
+	 */
 	// List All the Source Files
 	public static void listSourceFiles(Path path, int depth, List<Path> path_list) throws Exception
 	{
@@ -52,6 +60,11 @@ public class FileFinder
 		
 	}
 	
+	/**
+	 * @param path current path
+	 * @return boolean true if is a directory
+	 * @throws Exception if error
+	 */
 	// Check if the Path is a Directory
 	public static boolean isDirectory(Path path) throws Exception
 	{
@@ -67,6 +80,11 @@ public class FileFinder
 		return false;
 	}
 	
+	/**
+	 * @param path current file
+	 * @return true if the files are text files
+	 * @throws IOException if error occurs
+	 */
 	// Check if the File is a Text File
 	public static boolean isTextFile(Path path) throws IOException
 	{

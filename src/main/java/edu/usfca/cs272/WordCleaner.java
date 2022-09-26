@@ -1,22 +1,21 @@
 package edu.usfca.cs272;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static opennlp.tools.stemmer.snowball.SnowballStemmer.ALGORITHM.ENGLISH;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.Normalizer;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
 
-import opennlp.tools.formats.convert.FileToStringSampleStream;
-import opennlp.tools.stemmer.PorterStemmer;
 import opennlp.tools.stemmer.Stemmer;
 import opennlp.tools.stemmer.snowball.SnowballStemmer;
 import opennlp.tools.stemmer.snowball.SnowballStemmer.ALGORITHM;
-import opennlp.tools.util.ObjectStream;
 
 /**
  * Utility class for parsing, cleaning, and stemming text and text files into
