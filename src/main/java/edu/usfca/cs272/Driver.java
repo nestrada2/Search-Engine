@@ -147,7 +147,7 @@ public class Driver
 		} 
 		catch (Exception e) 
 		{
-			e.printStackTrace();
+			System.err.println();
 		}
 	}
 }
