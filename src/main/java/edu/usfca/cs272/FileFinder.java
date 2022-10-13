@@ -15,6 +15,12 @@ import java.util.List;
  */
 public class FileFinder 
 {
+    /* TODO JavaDoc Make sure to add a description in all of your
+     * Javadoc comments. Javadoc is usually all other developers use to
+     * figure out how to use your code, so you don't want that part to
+     * be blank!
+     */
+
 	/**
 	 * @param path File
 	 * @param depth How Deep is
@@ -89,6 +95,10 @@ public class FileFinder
 	public static boolean isTextFile(Path path) throws IOException
 	{
 		// If the Text Ends with "text" or "txt" it's a Text File 
+
+        // TODO call `path.toString().toLowerCase()` once
+        // TODO return ( endsWith("text") || ...endsWith("txt") )
+
 		if (path.toString().toLowerCase().endsWith("text") || path.toString().toLowerCase().endsWith("txt"))
 		{
 			return true;
@@ -98,6 +108,7 @@ public class FileFinder
 	}
 }
 
-// References
+// References (XXX: remember, we're using Java SDK 17 in class -- feel
+// free to delete after)
 // https://docs.oracle.com/javase/8/docs/api/java/nio/file/attribute/BasicFileAttributes.html
 // https://docs.oracle.com/javase/7/docs/api/java/nio/file/DirectoryStream.html

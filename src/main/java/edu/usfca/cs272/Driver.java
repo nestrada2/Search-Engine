@@ -16,6 +16,9 @@ import java.util.HashMap;
  */
 public class Driver 
 {
+
+    // TODO move these inside `main(...)`
+
 	/**
 	 * Homework 1: Argument Parser
 	 */
@@ -36,8 +39,40 @@ public class Driver
 	 */
 	public static void main(String[] args) 
 	{
+
+        // TODO instantiate ArgumentParser and PrettyJsonWriter here
+
+
+        // TODO create an InvertedIndex + builder (?) class
 		// Stores the Mapping from Words to the Documents and Positions
 		HashMap<String, HashMap<String, ArrayList<Integer>>> inverted_index = new HashMap<String, HashMap<String, ArrayList<Integer>>>();
+
+        /* TODO Exceptions:
+         * Your code should throw exceptions almost everywhere to make
+         * the code more generally useful for other developers, so that
+         * those other developers can decide how to react to that
+         * exception. The one place your code should NOT throw
+         * exceptions is the code interacting directly with the general
+         * user (in this case Driver.main). Console output should be
+         * user-friendly and informative, so you need to prevent a stack
+         * trace being output to the general user.
+         */
+
+        /* TODO (delete after reading)
+         *
+         * try {
+         *   var result = someMethodThatCouldThrowException();
+         * }
+         * catch (Exception e) {
+         *   System.out.println("something wrong happened!");
+         *   System.exit(1);
+         * }
+         *
+         * for( var entry : result) {
+         *   // do some processing
+         * }
+         *
+         */
 
 		try 
 		{
@@ -53,13 +88,16 @@ public class Driver
 			// If the Path is Empty, Output an Empty String
 			if (parse.getString("-text") == null) 
 			{
+                // TODO output a more descriptive error message
 				System.out.println("");
 				return;
 			}
-			
+		
+            // TODO method should output to a List<Path> object
 			// Loop through all the Current Directories/Files and Adds all the Files into "path_list" ArrayList
 			FileFinder.listSourceFiles(path, 0, path_list);
-			
+		
+            // TODO create and use inverted index class + builder
 			/* -------------------- Inverted Index Formatting -------------------- */
 			
 			// Loop through all the Paths/Files in the "path_list" ArrayList
@@ -115,7 +153,9 @@ public class Driver
 
 			// Sort the Keys in Alphabetical Order
 			Collections.sort(sorted_keys);
-			
+		
+
+            // TODO use PrettyJsonWriter.writeNestedArrays(...)
 			// Formatting the Writer
 			writer.write("{\n");
 
@@ -147,6 +187,7 @@ public class Driver
 		} 
 		catch (Exception e) 
 		{
+            // TODO print useful error messages for the user when an exception is caught
 			System.err.println();
 		}
 	}

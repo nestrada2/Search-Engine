@@ -144,6 +144,9 @@ public class ArgumentParser
 	 */
 	public boolean hasValue(String flag)
 	{
+
+        // TODO return map.get(flag) != null;
+
 		boolean not_null = true;
 
 		// map.get(key) Returns the Value of that Key
@@ -186,6 +189,7 @@ public class ArgumentParser
 	 */
 	public String getString(String flag)
 	{
+        // TODO delete the if statement
 		// Return Null if the Key is not Mapped
 		if (map.get(flag) == null)
 		{
