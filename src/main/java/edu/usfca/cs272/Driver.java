@@ -5,6 +5,9 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Class responsible for running this project based on the provided command-line
@@ -20,12 +23,6 @@ public class Driver
 	 * Homework 1: Argument Parser
 	 */
 	static ArgumentParser parse = new ArgumentParser();
-
-	
-	/**
-	 * Homework 4: Pretty Json Writer
-	 */
-	static PrettyJsonWriter json = new PrettyJsonWriter();
 
 	/**
 	 * Initializes the classes necessary based on the provided command-line
@@ -48,7 +45,7 @@ public class Driver
 			Path path = parse.getPath("-text");
 			
 			// Created an ArrayList to Store all the Paths
-			ArrayList<Path> path_list = new ArrayList<>();
+			List<Path> path_list = new ArrayList<>();
 
 			// If the Path is Empty, Output an Empty String
 			if (parse.getString("-text") == null) 
@@ -90,6 +87,13 @@ public class Driver
 					values.get(document).add(i + 1);
 				}
 			}
+			
+//			ArrayList<String> list = path_list.stream()
+//					.map(p -> WordCleaner.listStems(p));
+//			
+//			ArrayList<String> list = IntStream.range(0, path_list.size())
+//					.forEach(i -> WordCleaner.listSteams(i));
+			
 			
 			/* -------------------- JSON Formatting -------------------- */
 

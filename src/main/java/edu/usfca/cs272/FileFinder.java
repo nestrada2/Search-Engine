@@ -61,6 +61,8 @@ public class FileFinder
 	}
 	
 	/**
+	 * Checks if the path is a directory
+	 * 
 	 * @param path current path
 	 * @return boolean true if is a directory
 	 * @throws Exception if error
@@ -71,30 +73,23 @@ public class FileFinder
 		// File Attributes - Variables/Methods
 		BasicFileAttributes attrs = Files.readAttributes(path, BasicFileAttributes.class);
 		
-		// If the File is A Directory
-		if (attrs.isDirectory())
-		{
-			return true;
-		}
-		
-		return false;
+		// Returns True if the File is a Directory
+		return attrs.isDirectory();
 	}
 	
 	/**
+	 * Checks if the file is a text file
+	 * 
 	 * @param path current file
 	 * @return true if the files are text files
 	 * @throws IOException if error occurs
 	 */
-	// Check if the File is a Text File
 	public static boolean isTextFile(Path path) throws IOException
 	{
-		// If the Text Ends with "text" or "txt" it's a Text File 
-		if (path.toString().toLowerCase().endsWith("text") || path.toString().toLowerCase().endsWith("txt"))
-		{
-			return true;
-		}
+		String file = path.toString().toLowerCase();
 		
-		return false;
+		// If the Text Ends with "text" or "txt" it's a Text File 
+		return file.endsWith("text") || file.endsWith("txt");
 	}
 }
 
