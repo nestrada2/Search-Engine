@@ -15,8 +15,10 @@ import java.util.*;
  * Warning: This class is not thread-safe. If multiple threads access this class
  * concurrently, access must be synchronized externally.
  *
+ * @author Nino Estrada
  * @author CS 272 Software Development (University of San Francisco)
  * @version Fall 2022
+ * 
  */
 public class PrettyJsonWriter
 {
@@ -266,7 +268,7 @@ public class PrettyJsonWriter
 	 * notation used allows this method to be used for any type of map with any
 	 * type of nested collection of number objects.
 	 *
-	 * @param elements the elements to write
+	 * @param inverted_index the elements to write
 	 * @param writer the writer to use
 	 * @param indent the initial indent level; the first bracket is not indented,
 	 *   inner elements are indented by one, and the last bracket is indented at
@@ -279,14 +281,14 @@ public class PrettyJsonWriter
 	 * @see #writeArray(Collection)
 	 */
 	public static void writeNestedArrays(
-			Map<String, ? extends Collection<? extends Number>> elements,
+			HashMap<String, HashMap<String, ArrayList<Integer>>> inverted_index,
 			Writer writer, int indent) throws IOException {
 
 		writer.flush();
-		int length = elements.size();
+		int length = inverted_index.size();
 		int index = 0;
 
-		if (elements.isEmpty())
+		if (inverted_index.isEmpty())
 		{
 			writer.write("{\n");
 			writeIndent("}", writer, indent);
@@ -296,29 +298,62 @@ public class PrettyJsonWriter
 			writeIndent("{\n", writer, 0);
 
 			// Turn Key Set to a List
-			List<String> sorted = new ArrayList<>(elements.keySet().stream().toList());
+			List<String> sorted_keys = new ArrayList<>(inverted_index.keySet().stream().toList());
 
-			Collections.sort(sorted);
+			Collections.sort(sorted_keys);
 
-			for (String key: sorted)
+			// Loop Through the Words
+			for (String key: sorted_keys)
 			{
+				// Inner Map
+				Map<String, ? extends Collection<? extends Number>> values = inverted_index.get(key);
+				List<String> sorted_values = new ArrayList<>(values.keySet().stream().toList());
+				int inner_map_length = sorted_values.size();
+				int inner_idx = 0;
+
+				Collections.sort(sorted_values);
 				writeQuote(key, writer, indent + 1);
 				writer.write(": ");
-				Collection<? extends Number> numbers = elements.get(key);
-
-				writeArray(numbers, writer, indent + 1);
-
+				writeIndent("{\n", writer, 0);
+				writeIndent(writer, indent + 1);
+				
+				// Loop Through the Inner Map: Document & Position(s)
+				for (String value: sorted_values)
+				{
+					writeQuote(value, writer, indent + 1);
+					writer.write(": ");
+					Collection<? extends Number> numbers = values.get(value);
+		
+					writeArray(numbers, writer, indent + 2);
+					
+					// Add a Comma Except for the Last Element
+					if (inner_idx != inner_map_length - 1)
+					{
+						writer.write(",\n");
+						writeIndent(writer, 1);
+					}
+					
+					inner_idx += 1;
+				}
+				
 				// Add a Comma Except for the Last Element
 				if (index != length - 1)
 				{
-					writer.write(",\n");
+					writer.write("\n");
+					writeIndent("},\n", writer, 1);
 				}
-
+				else
+				{
+					writer.write("\n");
+					writeIndent("}", writer, 1);
+				}
+				
 				index += 1;
 			}
 
 			writer.write("\n");
 			writeIndent("}", writer, indent);
+			writer.write("\n");
 		}
 	}
 
@@ -333,13 +368,13 @@ public class PrettyJsonWriter
 	 * @see StandardCharsets#UTF_8
 	 * @see #writeNestedArrays(Map, Writer, int)
 	 */
-	public static void writeNestedArrays(
-			Map<String, ? extends Collection<? extends Number>> elements, Path path)
-			throws IOException {
-		try (BufferedWriter writer = Files.newBufferedWriter(path, UTF_8)) {
-			writeNestedArrays(elements, writer, 0);
-		}
-	}
+//	public static void writeNestedArrays(
+//			Map<String, ? extends Collection<? extends Number>> elements, Path path)
+//			throws IOException {
+//		try (BufferedWriter writer = Files.newBufferedWriter(path, UTF_8)) {
+//			writeNestedArrays(elements, writer, 0);
+//		}
+//	}
 
 	/**
 	 * Returns the elements as a pretty JSON object with nested arrays.
@@ -350,17 +385,17 @@ public class PrettyJsonWriter
 	 * @see StringWriter
 	 * @see #writeNestedArrays(Map, Writer, int)
 	 */
-	public static String writeNestedArrays(
-			Map<String, ? extends Collection<? extends Number>> elements) {
-		try {
-			StringWriter writer = new StringWriter();
-			writeNestedArrays(elements, writer, 0);
-			return writer.toString();
-		}
-		catch (IOException e) {
-			return null;
-		}
-	}
+//	public static String writeNestedArrays(
+//			Map<String, ? extends Collection<? extends Number>> elements) {
+//		try {
+//			StringWriter writer = new StringWriter();
+//			writeNestedArrays(elements, writer, 0);
+//			return writer.toString();
+//		}
+//		catch (IOException e) {
+//			return null;
+//		}
+//	}
 
 	/**
 	 * Writes the elements as a pretty JSON array with nested objects. The generic

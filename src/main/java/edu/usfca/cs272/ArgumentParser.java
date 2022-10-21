@@ -6,9 +6,9 @@ import java.util.HashMap;
 /**
  * Parses and stores command-line arguments into simple flag/value pairs.
  *
+ * @author Nino Estrada
  * @author CS 272 Software Development (University of San Francisco)
  * @version Fall 2022
- * Nino Estrada
  */
 public class ArgumentParser
 {
@@ -64,11 +64,8 @@ public class ArgumentParser
 			boolean is_digit = Character.isDigit(second_char);
 			boolean is_whitespace = Character.isWhitespace(second_char);
 
-			// String Starts with "-" and the sec. letter is a # or " " Flag it
-			if (first_char == '-' && !is_digit && !is_whitespace)
-			{
-				return true;
-			}
+			// Return True if String Starts with "-" and the sec. letter is a # or " " Flag it
+			return first_char == '-' && !is_digit && !is_whitespace;
 		}
 
 		return false;
@@ -119,7 +116,7 @@ public class ArgumentParser
 	 */
 	public int numFlags()
 	{
-		// Hashmap Key's are Unique
+		// HashMap Key's are Unique
 		return map.size();
 	}
 
@@ -144,15 +141,7 @@ public class ArgumentParser
 	 */
 	public boolean hasValue(String flag)
 	{
-		boolean not_null = true;
-
-		// map.get(key) Returns the Value of that Key
-		if (map.get(flag) == null)
-		{
-			not_null = false;
-		}
-
-		return not_null;
+		return map.get(flag) != null;
 	}
 
 	/**
@@ -186,12 +175,6 @@ public class ArgumentParser
 	 */
 	public String getString(String flag)
 	{
-		// Return Null if the Key is not Mapped
-		if (map.get(flag) == null)
-		{
-			return null;
-		}
-
 		// Return the Value of the Specify Key
 		return map.get(flag);
 	}
