@@ -76,14 +76,14 @@ public class Driver
 		{
 			try 
 			{
-			// Add all the Cleaned and Stemmed English Words of the Current File in a new ArrayList 
-			ArrayList<String> list = WordCleaner.listStems(p);
-			
-			// The Filename
-			String document = p.toString();
-			
-			// Build the Inverted Index
-			inverted_index.add(list, document);
+				// Add all the Cleaned and Stemmed English Words of the Current File in a new ArrayList 
+				ArrayList<String> list = WordCleaner.listStems(p);
+				
+				// The Filename
+				String document = p.toString();
+				
+				// Build the Inverted Index
+				inverted_index.add(list, document);
 			}
 			catch (IOException e)
 			{
