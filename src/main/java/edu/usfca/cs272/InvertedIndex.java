@@ -4,8 +4,11 @@ import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Utility class for building the inverted index
@@ -20,7 +23,7 @@ public class InvertedIndex
 	/**
 	 * // Stores the Mapping from Words to the Documents and Positions
 	 */
-	HashMap<String, HashMap<String, ArrayList<Integer>>> inverted_index;
+	private static HashMap<String, HashMap<String, ArrayList<Integer>>> inverted_index;
 	
 	/**
 	 * Instantiates the Inverted Index
@@ -30,6 +33,91 @@ public class InvertedIndex
 		inverted_index = new HashMap<String, HashMap<String, ArrayList<Integer>>>();
 	}
 	
+	/**
+	 * Prints the inverted index in JSON format
+	 * 
+	 * @param writer is the class file for file output string that we want to write to the file
+	 * @throws IOException if an IO error occurs
+	 */
+	public void printJson(Writer writer) throws IOException
+	{
+		PrettyJsonWriter.writeNestedArrays(inverted_index, writer, 0);
+	}
+	
+	/**
+	 * Provides the size of the inverted index
+	 * 
+	 * @return the size of the inverted index
+	 */
+	public int size()
+	{
+		return inverted_index.size();
+		
+	}
+	
+	/**
+	 * Provides the size of the inner map
+	 * 
+	 * @param word is a key of the inverted index
+	 * @return the size of the inner map
+	 */
+	public int size(String word)
+	{
+		return inverted_index.get(word).size();
+	}
+	
+	/**
+	 * Provides a view only copy of the inverted index of a particular word
+	 * 
+	 * @param word is the key searching its values
+	 * @return the documents and position(s) of the word
+	 */
+	public Map<String, ArrayList<Integer>> get(String word) 
+	{
+		return Collections.unmodifiableMap(inverted_index.get(word));
+	}
+	
+	/**
+	 * Provides a view only copy of the inverted index
+	 * 
+	 * @return the inverted index
+	 */
+	public Collection<String> view() 
+	{
+		return Collections.unmodifiableCollection(inverted_index.keySet());
+	}
+	
+	/**
+	 * Adds the word to the inverted index
+	 * 
+	 * @param word is a key that will be added to the inverted index
+	 */
+	public void add(String word)
+	{
+		inverted_index.putIfAbsent(word, new HashMap<String, ArrayList<Integer>>()); 
+	}
+	
+	/**
+	 * Adds a word, a document, and the position(s) to the inverted index 
+	 * 
+	 * @param word is the key that will be added to the inverted index
+	 * @param document is the value of the inner map
+	 * @param position is the index of the given word in the given document
+	 */
+	public void add(String word, String document, int position)
+	{
+		// Add Current "word" as a Key to the inverted index
+		add(word);
+		
+		// Grabs the HashMap which is the Value from the inverted index: Document, Positions
+		Map<String, ArrayList<Integer>> values = inverted_index.get(word);
+
+		// Store the Document as a Key to the HashMap "values" which is the Values of the inverted index
+		values.putIfAbsent(document, new ArrayList<Integer>());
+
+		// Get the Position of the Current word in the Document and Add it to the HashMap as a Value
+		values.get(document).add(position);
+	}
 	
 	/**
 	 * Adds to the Inverted Index 
@@ -45,28 +133,56 @@ public class InvertedIndex
 			// Current Word
 			String word = list.get(i);
 
-			// Add Current "word" as a Key to the "inverted_index"
-			inverted_index.putIfAbsent(word, new HashMap<String, ArrayList<Integer>>()); 
-
-			// Grabs the HashMap which is the Value from the "inverted_index": Document, Positions
-			HashMap<String, ArrayList<Integer>> values = inverted_index.get(word);
-
-			// Store the Document as a Key to the HashMap "values" which is the Values of the "inverted_index"
-			values.putIfAbsent(document, new ArrayList<Integer>());
-
-			// Get the Position of the Current "word" in the Document and Add it to the HashMap as a Value: Add 1 because the Index "i" begins at 0
-			values.get(document).add(i + 1);
+			// Build the inverted index: Add 1 because the Index "i" begins at 0
+			add(word, document, i + 1);
 		}
 	}
 	
 	/**
-	 * Prints the inverted index in JSON format
+	 * Loops through the paths and adds its respected values to the inverted index
 	 * 
-	 * @param writer is the class file for file output string that we want to write to the file
-	 * @throws IOException if an IO error occurs
+	 * @param path_list is a list of Paths
+	 * @throws IOException if there is an IO error
 	 */
-	public void printJson(Writer writer) throws IOException
+	public void add(List<Path> path_list) throws IOException
 	{
-		PrettyJsonWriter.writeNestedArrays(inverted_index, writer, 0);
+		// Loop through the List of Paths
+		for (Path p : path_list) 
+		{
+			// Add all the Cleaned and Stemmed English Words of the Current File in a new ArrayList 
+			ArrayList<String> list = WordCleaner.listStems(p);
+			
+			// The Filename
+			String document = p.toString();
+			
+			// Build the Inverted Index
+			add(list, document);	
+		}
+	}
+	
+	/**
+	 * Checks if the word is a key in the inverted index
+	 * 
+	 * @param word is the key of the inverted index
+	 * @return true if the word is in the inverted index
+	 */
+	public boolean has(String word)
+	{
+		// Check if the Inverted Index Contains the Word
+		return inverted_index.containsKey(word);
+	}
+
+
+	/**
+	 * Checks if the word is in the document
+	 * 
+	 * @param word is the key of the inverted index
+	 * @param document is the value of the inverted index
+	 * @return true if the word is in the document
+	 */
+	public boolean has(String word, String document)
+	{
+		// Check if the word is in the document
+		return get(word).containsKey(document);
 	}
 }

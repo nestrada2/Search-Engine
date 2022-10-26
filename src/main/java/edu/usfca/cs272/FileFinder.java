@@ -45,7 +45,7 @@ public class FileFinder
 			DirectoryStream<Path> stream = Files.newDirectoryStream(path);
 							
 			// For Each File Recursively calling ListDirectory
-			for (Path current_path: stream)
+			for (Path current_path : stream)
 			{
 				// Check if File is a Text File or Directory
 				if (isTextFile(current_path) || isDirectory(current_path))

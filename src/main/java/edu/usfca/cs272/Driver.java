@@ -70,31 +70,20 @@ public class Driver
 		}
 		
 		/* -------------------- Inverted Index Formatting -------------------- */
-		
-		// Loop through all the Paths/Files in the ArrayList
-		for (Path p: path_list) 
+	
+		try
 		{
-			try 
-			{
-				// Add all the Cleaned and Stemmed English Words of the Current File in a new ArrayList 
-				ArrayList<String> list = WordCleaner.listStems(p);
-				
-				// The Filename
-				String document = p.toString();
-				
-				// Build the Inverted Index
-				inverted_index.add(list, document);
-			}
-			catch (IOException e)
-			{
-				System.out.println("Could not read file.");
-			}
+			inverted_index.add(path_list);
+		}
+		catch (IOException e)
+		{
+			System.out.println("Could not read file.");
 		}
 		
-
 		/* -------------------- JSON Formatting -------------------- */
 
-		String json_file = "";
+		// Default Output Path
+		String json_file = "index.json";
 	
 		// Checks if the "inverted_index" Should be Output to a JSON File  
 		if (parse.hasFlag("-index")) 
@@ -105,18 +94,13 @@ public class Driver
 				// Gets the Value of the Specified File/Directory
 				json_file = parse.getString("-index");
 			}
-			else
-			{
-				// Default Output Path
-				json_file = "index.json";
-			}
 		} 
 		else 
 		{
 			// Create an Inverted Index but NOT an Output File
 			return;
 		}
-			
+		
 		
 		try (PrintWriter writer = new PrintWriter(json_file))
 		{
