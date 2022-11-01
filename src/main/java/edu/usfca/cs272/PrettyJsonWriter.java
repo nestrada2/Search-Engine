@@ -356,6 +356,191 @@ public class PrettyJsonWriter
 			writer.write("\n");
 		}
 	}
+	
+	/**
+	 * @author nino
+	 *
+	 */
+	public static class Entry implements Comparable
+	{
+		double score;
+		int count;
+		String document;
+		
+		/**
+		 * @param score
+		 * @param count
+		 * @param document
+		 */
+		public Entry (double score, int count, String document)
+		{
+			this.score = score;
+			this.count = count;
+			this.document = document;
+		}
+
+		@Override
+		public int compareTo(Object o) 
+		{
+			// Cast Object to Entry
+			Entry e = (Entry) o;
+			
+			if (score > e.getScore())
+			{
+				return -1;
+			}
+			else if (score < e.getScore())
+			{
+				return 1;
+			}
+			else if (count > e.getCount())
+			{
+				return -1;
+			}
+			else if (count < e.getCount())
+			{
+				return 1;
+			}
+		
+			
+			return document.compareTo(e.getDocument());
+		}
+		
+		/**
+		 * @return
+		 */
+		public int getCount() 
+		{
+			return count;
+		}
+
+		/**
+		 * @return
+		 */
+		public double getScore() 
+		{
+			return score;
+		}
+
+		/**
+		 * @return
+		 */
+		public String getDocument() 
+		{
+			return document;
+		}
+	}
+	
+	/**
+	 * Writes the queries as a pretty JSON object with nested arrays.
+	 * 
+	 * @param query_calculation is a TreeMap that stores a mapping of queries to documents and its counts
+	 * @param word_count is a mapping of words and their total count based on a specific document
+	 * @param writer the writer to use
+	 * @param indent the initial indent level; the first bracket is not indented,
+	 *   inner elements are indented by one, and the last bracket is indented at
+	 *   the initial indentation level
+	 * @throws IOException if an IO error occurs
+	 */
+	public static void writeNestedArrays(
+			TreeMap<String, TreeMap<String, Integer>> query_calculation, Map<String, Integer> word_count,
+			Writer writer, int indent) throws IOException {
+
+		writer.flush();
+		int length = query_calculation.size();
+		int index = 0;
+
+		if (query_calculation.isEmpty())
+		{
+			writer.write("{\n");
+			writeIndent("}", writer, indent);
+		}
+		else
+		{
+			writeIndent("{\n", writer, 0);
+
+			// Loop Through all the Queries
+			for (String query: query_calculation.keySet())
+			{
+				// Format Query
+				writeQuote(query, writer, indent + 1);
+				writer.write(": ");
+				writeIndent("[\n", writer, 0);
+				
+				TreeMap<String, Integer> docs = query_calculation.get(query);
+				
+				int inner_map_length = docs.size();
+				int inner_idx = 0;
+				
+				
+				TreeSet<Entry> scores = new TreeSet<Entry>();
+				
+				// Loop Through all the Documents of that Specific Queries
+				for (String document : docs.keySet())
+				{
+					// Count of Current Queries
+					int cur_count = query_calculation.get(query).get(document);
+					double score = (double) cur_count / word_count.get(document);
+					String formatted_score = String.format("%.8f", score);
+					
+					Entry cur_queries = new Entry(score, cur_count, document);
+					scores.add(cur_queries);
+				}
+				
+				for (Entry score : scores)
+				{
+					// Count
+					writeIndent("{\n", writer, indent + 2);
+					writeQuote("count", writer, indent + 3);
+					writer.write(": ");
+					writer.write(score.getCount() + ",\n");
+					
+					// Score
+					writeQuote("score", writer, indent + 3);
+					writer.write(": ");
+					writer.write(String.format("%.8f", score.getScore()) + ",\n");
+					
+					// Where
+					writeQuote("where", writer, indent + 3);
+					writer.write(": ");
+					writeQuote(score.getDocument(), writer, 0);
+					writer.write("\n");
+					
+					
+					writeIndent("}", writer, indent + 2);
+					
+					// Add a Comma Except for the Last Element
+					if (inner_idx != inner_map_length - 1)
+					{
+						writeIndent(",\n", writer, 0);
+					}
+					else
+					{
+						writeIndent("\n", writer, 0);
+					}
+					
+					inner_idx += 1;
+				}
+				
+				
+				// Add a Comma Except for the Last Element
+				if (index != length - 1)
+				{
+					writeIndent("],\n", writer, 1);
+				}
+				else
+				{
+					writeIndent("]", writer, 1);
+				}
+				
+				index += 1;
+			}
+
+			writer.write("\n");
+			writeIndent("}", writer, indent);
+			writer.write("\n");
+		}
+	}
 
 	/**
 	 * Writes the elements as a pretty JSON object with nested arrays to file.

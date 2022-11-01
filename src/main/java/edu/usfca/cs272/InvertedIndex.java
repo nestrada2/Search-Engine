@@ -21,9 +21,14 @@ import java.util.Map;
 public class InvertedIndex 
 {
 	/**
-	 * // Stores the Mapping from Words to the Documents and Positions
+	 * Stores the Mapping from Words to the Documents and Positions
 	 */
 	private static HashMap<String, HashMap<String, ArrayList<Integer>>> inverted_index;
+	
+	/**
+	 * Counts the Number of Words in a Document
+	 */
+	private static WordCount word_count;
 	
 	/**
 	 * Instantiates the Inverted Index
@@ -31,6 +36,7 @@ public class InvertedIndex
 	public InvertedIndex()
 	{
 		inverted_index = new HashMap<String, HashMap<String, ArrayList<Integer>>>();
+		word_count = new WordCount();
 	}
 	
 	/**
@@ -45,6 +51,39 @@ public class InvertedIndex
 	}
 	
 	/**
+	 * @param writer
+	 * @throws IOException
+	 */
+	public void printWordCountJson(Writer writer) throws IOException
+	{
+		word_count.printJson(writer);
+	}
+	
+	/**
+	 * @return
+	 */
+	// gets word count
+	public Map<String, Integer> getWordCount()
+	{
+		return word_count.getWordCount();
+	}
+	
+	/**
+	 * Provides a view only copy of the inverted index's keys in alphabetical order
+	 * 
+	 * @return a list of the inverted index's keys (words)
+	 */
+	public List<String> getSortedKeys()
+	{
+		// Turn Key Set to a List
+		List<String> sorted_keys = new ArrayList<>(inverted_index.keySet().stream().toList());
+		
+		Collections.sort(sorted_keys);
+		
+		return Collections.unmodifiableList(sorted_keys);
+	}
+	
+	/**
 	 * Provides the size of the inverted index
 	 * 
 	 * @return the size of the inverted index
@@ -52,7 +91,6 @@ public class InvertedIndex
 	public int size()
 	{
 		return inverted_index.size();
-		
 	}
 	
 	/**
@@ -74,7 +112,13 @@ public class InvertedIndex
 	 */
 	public Map<String, ArrayList<Integer>> get(String word) 
 	{
-		return Collections.unmodifiableMap(inverted_index.get(word));
+		// If the Word is in the Inverted Index
+		if (inverted_index.containsKey(word))
+		{
+			return Collections.unmodifiableMap(inverted_index.get(word));
+		}
+		
+		return null;
 	}
 	
 	/**
@@ -108,6 +152,9 @@ public class InvertedIndex
 	{
 		// Add Current "word" as a Key to the inverted index
 		add(word);
+		
+		// Counts Words in a Specific Document
+		word_count.increment(document);
 		
 		// Grabs the HashMap which is the Value from the inverted index: Document, Positions
 		Map<String, ArrayList<Integer>> values = inverted_index.get(word);
