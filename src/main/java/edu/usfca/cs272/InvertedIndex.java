@@ -62,9 +62,8 @@ public class InvertedIndex
 	}
 	
 	/**
-	 * @return
+	 * @return a view only copy of the word count TreeMap
 	 */
-	// gets word count
 	public Map<String, Integer> getWordCount()
 	{
 		return word_count.getWordCount();
