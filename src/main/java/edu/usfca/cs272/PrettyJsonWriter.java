@@ -358,10 +358,10 @@ public class PrettyJsonWriter
 	}
 	
 	/**
-	 * @author nino
+	 * Entry of Each User's Query Search Data
 	 *
 	 */
-	public static class Entry implements Comparable
+	public static class Entry implements Comparable<Object>
 	{
 		/**
 		 * The Calculated Score for the Entry
