@@ -42,11 +42,6 @@ public class Driver
 		InvertedIndex inverted_index = new InvertedIndex();
 		
 		/**
-		 * Word Counter: Stores the Mapping of a Documents and its Number of Words
-		 */
-		WordCount word_count = new WordCount();
-		
-		/**
 		 * Query Reader: Reads the Queries to be used for Search, Stems Each Word, and Adds Each Stem Word to a List
 		 */
 		QueryReader query_reader = new QueryReader();
@@ -127,8 +122,7 @@ public class Driver
 			try (PrintWriter writer = new PrintWriter(json_file))
 			{
 				// Formatting the Writer
-				inverted_index.printJson(writer);
-				
+				inverted_index.printJson(writer);	
 			} 
 			catch (IOException e) 
 			{
@@ -175,7 +169,10 @@ public class Driver
 				
 				try
 				{
-					queries = query_reader.clean(query_path, inverted_index);
+					// Reads and Steams the Query File to a List of a TreeSet 
+					queries = query_reader.clean(query_path);
+					
+					// Calculates Partial or Exact Search Results 
 					query_reader.search(inverted_index, queries, is_partial);
 				}
 				catch (IOException e)
@@ -195,17 +192,11 @@ public class Driver
 				results_file = parse.getString("-results");
 			}
 				
-			// Convert a String to a Path
-			Path result_path = Paths.get(results_file);
-			
 			// Write to the JSON File
 			try (PrintWriter results_writer = new PrintWriter(results_file))
 			{
 				// Formatting the Writer
 				query_reader.printJson(inverted_index, inverted_index.getWordCount(), results_writer);
-				
-				// Results
-				System.out.println(results_file);
 			}
 			catch (IOException e) 
 			{

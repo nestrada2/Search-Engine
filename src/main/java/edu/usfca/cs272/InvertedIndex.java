@@ -31,7 +31,7 @@ public class InvertedIndex
 	private static WordCount word_count;
 	
 	/**
-	 * Instantiates the Inverted Index
+	 * Instantiates the Inverted Index and Word Count
 	 */
 	public InvertedIndex()
 	{
@@ -43,7 +43,7 @@ public class InvertedIndex
 	 * Prints the inverted index in JSON format
 	 * 
 	 * @param writer is the class file for file output string that we want to write to the file
-	 * @throws IOException if an IO error occurs
+	 * @throws IOException if the file could not be read
 	 */
 	public void printJson(Writer writer) throws IOException
 	{
@@ -51,8 +51,10 @@ public class InvertedIndex
 	}
 	
 	/**
-	 * @param writer
-	 * @throws IOException
+	 * Prints the word count in JSON format
+	 * 
+	 * @param writer is the class file for file output string that we want to write to the file
+	 * @throws IOException if the counts file could not be read
 	 */
 	public void printWordCountJson(Writer writer) throws IOException
 	{

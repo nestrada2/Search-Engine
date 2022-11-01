@@ -363,14 +363,23 @@ public class PrettyJsonWriter
 	 */
 	public static class Entry implements Comparable
 	{
+		/**
+		 * The Calculated Score for the Entry
+		 */
 		double score;
+		/**
+		 * The Number of Times the Entry is in the Document
+		 */
 		int count;
+		/**
+		 * The Filename
+		 */
 		String document;
 		
 		/**
-		 * @param score
-		 * @param count
-		 * @param document
+		 * @param score is the query words score
+		 * @param count is the query words count
+		 * @param document is the query's filename
 		 */
 		public Entry (double score, int count, String document)
 		{
@@ -407,7 +416,7 @@ public class PrettyJsonWriter
 		}
 		
 		/**
-		 * @return
+		 * @return the count
 		 */
 		public int getCount() 
 		{
@@ -415,7 +424,7 @@ public class PrettyJsonWriter
 		}
 
 		/**
-		 * @return
+		 * @return the score
 		 */
 		public double getScore() 
 		{
@@ -423,7 +432,7 @@ public class PrettyJsonWriter
 		}
 
 		/**
-		 * @return
+		 * @return the document
 		 */
 		public String getDocument() 
 		{
