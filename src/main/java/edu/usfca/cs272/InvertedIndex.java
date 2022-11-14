@@ -77,6 +77,7 @@ public class InvertedIndex
 	public List<String> getSortedKeys()
 	{
 		// Turn Key Set to a List
+		// @TODO is it necessary to create a stream+list?
 		List<String> sorted_keys = new ArrayList<>(inverted_index.keySet().stream().toList());
 		
 		Collections.sort(sorted_keys);

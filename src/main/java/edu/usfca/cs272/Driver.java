@@ -93,6 +93,8 @@ public class Driver
 		/* -------------------- JSON Formatting -------------------- */
 
 		// Default Output Path
+		// @TODO: put default values in global constants
+		// String json_file = DEFAULT_JSON_FILE;
 		String json_file = "index.json";
 		String counts_file = "counts.json";
 		String results_file = "results.json";
@@ -112,6 +114,7 @@ public class Driver
 		if (parse.hasFlag("-index")) 
 		{
 			
+			// @TODO String json_file = parse.getString("-index", DEFAULT_JSON_FILE);
 			if (parse.hasValue("-index"))
 			{
 				// Gets the Value of the Specified File/Directory
@@ -134,6 +137,7 @@ public class Driver
 		
 		if (parse.hasFlag("-counts"))
 		{
+			// @TODO
 			if (parse.hasValue("-counts"))
 			{
 				// Gets the Value of the Specified File/Directory
@@ -156,6 +160,7 @@ public class Driver
 		
 		if (parse.hasFlag("-query"))
 		{
+			// @TODO: Probably want an warning telling the user that they need to specify a value
 			if (parse.hasValue("-query"))
 			{
 				// Gets the Name of the File Containing the User's Queries
@@ -186,6 +191,7 @@ public class Driver
 		
 		if (parse.hasFlag("-results"))
 		{
+			// @TODO - getString("-results", backup)
 			if (parse.hasValue("-results"))
 			{
 				// Gets the Value of the Specified File/Directory

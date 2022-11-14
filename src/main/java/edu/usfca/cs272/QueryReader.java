@@ -58,6 +58,7 @@ public class QueryReader
 			while ((line = reader.readLine()) != null)
 			{
 				// Used to Store Each Query (Word) in a List
+				// @TODO no need to create a new ArrayList here that just gets replaced in the next line
 				ArrayList<String> clean_line = new ArrayList<>();
 				
 				// Stems the Word in English
@@ -70,6 +71,7 @@ public class QueryReader
 				}
 				
 				// Adding a TreeSet of Words of this Query to an ArrayList 
+				// @TODO just use uniqueStems instead of listStems if we want a set anyway
 				list_of_queries.add(new TreeSet<String>(clean_line));
 			}
 			
@@ -147,6 +149,8 @@ public class QueryReader
 	 */
 	public void printJson(InvertedIndex inverted_index, Map<String, Integer> word_count, Writer writer) throws IOException
 	{
+		// @TODO: see my comments in PrettyJsonWriter. Maybe you can do more of the caulcuations here and create
+		// the data structure here
 		PrettyJsonWriter.writeNestedArrays(query_calculation, word_count, writer, 0);
 	}
 }
