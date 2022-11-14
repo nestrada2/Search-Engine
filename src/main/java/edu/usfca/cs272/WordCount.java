@@ -32,6 +32,7 @@ public class WordCount
 	/**
 	 * @param document is the current key to increment it's word count value
 	 */
+	 // @TODO shouldn't `document` be called `word`?
 	public void increment(String document)
 	{
 		

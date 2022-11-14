@@ -179,6 +179,7 @@ public class PrettyJsonWriter
 		}
 		else
 		{
+			// @TODO is this `if` statement necessary? If indent is 0, then it'll write the same thing in either block
 			if (indent == 0)
 			{
 				writeIndent("{", writer, indent);
@@ -192,6 +193,7 @@ public class PrettyJsonWriter
 
 			for (Map.Entry<String, ? extends Number> entry: elements.entrySet())
 			{
+				// @TODO can you combine these 2 `if` statements? The condition is the same
 				if (indent == 0)
 				{
 					writeIndent(writer, 1);
@@ -280,7 +282,12 @@ public class PrettyJsonWriter
 	 * @see #writeIndent(String, Writer, int)
 	 * @see #writeArray(Collection)
 	 */
+	// @TODO: you should rename this to something like `writeNestedNestedArrays` or something,
+	// since you have 2 layers of Maps. Also, you should be using writeNestedArrays in this method, instead of
+	// manually writing every layer in this 1 method.
 	public static void writeNestedArrays(
+			// @TODO Please use camelCase, not snake case, since that's what you're using everywhere else
+			// @TODO: just pass in a Map and List, not a HashMap and ArrayList, we want this to work for any kind of Map or List
 			HashMap<String, HashMap<String, ArrayList<Integer>>> inverted_index,
 			Writer writer, int indent) throws IOException {
 
@@ -306,7 +313,10 @@ public class PrettyJsonWriter
 			for (String key: sorted_keys)
 			{
 				// Inner Map
+				// @TODO You should be using writeNestedArrays here instead of looping again.
+				// If you need the keys to be sorted, consider using a TreeMap instead of a HashMap
 				Map<String, ? extends Collection<? extends Number>> values = inverted_index.get(key);
+				// @TODO you can just pass in values.keySet() I think
 				List<String> sorted_values = new ArrayList<>(values.keySet().stream().toList());
 				int inner_map_length = sorted_values.size();
 				int inner_idx = 0;
@@ -361,6 +371,8 @@ public class PrettyJsonWriter
 	 * Entry of Each User's Query Search Data
 	 *
 	 */
+	// @TODO this should be in a separate class (file)
+		// @TODO: Comparable works with Generics. Instead of Object, this should be Entry so that you can just compare Entry to Entry
 	public static class Entry implements Comparable<Object>
 	{
 		/**
@@ -389,9 +401,11 @@ public class PrettyJsonWriter
 		}
 
 		@Override
+		// @TODO this should be Entry input parameter
 		public int compareTo(Object o) 
 		{
 			// Cast Object to Entry
+			// @TODO remove casting! this is unsafe! If you pass in a non-Entry, this all breaks at runtime
 			Entry e = (Entry) o;
 			
 			if (score > e.getScore())
@@ -438,6 +452,13 @@ public class PrettyJsonWriter
 		{
 			return document;
 		}
+
+		// @TODO: toMap()
+		// Create the {
+		//	"count": ,
+		//	"score": ,
+		//
+		// } that can be passed into PrettyJsonWriter
 	}
 	
 	/**
@@ -451,6 +472,7 @@ public class PrettyJsonWriter
 	 *   the initial indentation level
 	 * @throws IOException if an IO error occurs
 	 */
+	// @TODO
 	public static void writeNestedArrays(
 			TreeMap<String, TreeMap<String, Integer>> query_calculation, Map<String, Integer> word_count,
 			Writer writer, int indent) throws IOException {
@@ -476,6 +498,11 @@ public class PrettyJsonWriter
 				writer.write(": ");
 				writeIndent("[\n", writer, 0);
 				
+				// @TODO: overall there's much too much search index-specific calculations going on here.
+				// PrettyJSONWriter should *only* be writing JSON, not computing anything related to the search index
+				// I'd suggest refactoring this so that you do the calculations somewhere else,
+				// create a datastructure you want print and then use PrettyJSONWriter to just print it
+
 				TreeMap<String, Integer> docs = query_calculation.get(query);
 				
 				int inner_map_length = docs.size();
