@@ -8,8 +8,10 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -112,15 +114,48 @@ public class QueryReader
 			// Looping through the Words of One Query
 			for (String query_word : query)
 			{
-				// Loop through the Inverted Index's Words
-				for (String stem_word : inverted_index.getSortedKeys())
+				Set<String> matching_keys = new HashSet<String>();
+				
+				// Exact Search
+				if (!is_partial)
 				{
-					// Substring (Query Word) is Present in the Current String within the ArrayList of Query Words
-					String substring_regex = "(?m)^" + query_word + ".*";
-					
-					// Query Word is in the Inverted Index either Partially or Exact
-					if (!is_partial && stem_word.equals(query_word) || is_partial && stem_word.matches(substring_regex))
+					// Query Word is in the Inverted Index
+					if (inverted_index.has(query_word))
 					{
+						matching_keys.add(query_word);
+					}
+					else
+					{
+						continue;
+					}
+				}
+				else
+				{
+					// Partial Search
+					
+					// Substring (Query Word) is Present in the Current String within the ArrayList of Query Words
+//					String substring_regex = "(?m)^" + query_word + ".*";
+					
+					// Loop through the Inverted Index's Words
+					for (String stem_word : inverted_index.getSortedKeys())
+					{
+						// Query Word is in the Inverted Index Partially
+						if (stem_word.startsWith(query_word))
+						{
+							matching_keys.add(stem_word);
+						}
+					}
+				}
+				
+				// Loop through the Inverted Index's Words
+				for (String stem_word : matching_keys)
+				{
+//					// Substring (Query Word) is Present in the Current String within the ArrayList of Query Words
+//					String substring_regex = "(?m)^" + query_word + ".*";
+					
+//					// Query Word is in the Inverted Index either Partially or Exact
+//					if (!is_partial && stem_word.equals(query_word) || is_partial && stem_word.matches(substring_regex))
+//					{
 						// All the Documents for that Specific Stem Word that contains that Query Word: Inner Map of Inverted Index
 						Map<String, ArrayList<Integer>> docs = inverted_index.get(stem_word);
 						
@@ -133,7 +168,7 @@ public class QueryReader
 							// Increment the Count Based on the Size of the Inverted Index's Position's ArrayList Length
 							values.put(document, values.get(document) + docs.get(document).size());
 						}	
-					}
+//					}
 				}
 			}
 		}

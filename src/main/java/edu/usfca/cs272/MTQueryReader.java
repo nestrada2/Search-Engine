@@ -1,8 +1,10 @@
 package edu.usfca.cs272;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -119,42 +121,76 @@ public class MTQueryReader extends QueryReader {
 				// Looping through the Words of One Query
 				for (String query_word : query)
 				{
-					lock.read().lock();
+					Set<String> matching_keys = new HashSet<String>();
 					
-					List<String> sorted_keys = inverted_index.getSortedKeys();
+					// Exact Search
+					if (!is_partial)
+					{
+						lock.read().lock();
+						
+						// Query Word is in the Inverted Index
+						if (inverted_index.has(query_word))
+						{
+							lock.read().unlock();
+							matching_keys.add(query_word);
+						}
+						else
+						{
+							lock.read().unlock();
+							continue;
+						}
+					}
+					else
+					{
+						// Partial Search
+						
+						lock.read().lock();
+						
+						List<String> sorted_keys = inverted_index.getSortedKeys();
+						
+						lock.read().unlock();
+						
+						// Loop through the Inverted Index's Words
+						for (String stem_word : inverted_index.getSortedKeys())
+						{
+							// Query Word is in the Inverted Index Partially
+							if (stem_word.startsWith(query_word))
+							{
+								matching_keys.add(stem_word);
+							}
+						}
+					}
 					
-					lock.read().unlock();
 					
 					// Loop through the Inverted Index's Words
-					for (String stem_word : sorted_keys)
+					for (String stem_word : matching_keys)
 					{
-						// Substring (Query Word) is Present in the Current String within the ArrayList of Query Words
-						String substring_regex = "(?m)^" + query_word + ".*";
+						
 						
 						// Query Word is in the Inverted Index either Partially or Exact
-						if (!is_partial && stem_word.equals(query_word) || is_partial && stem_word.matches(substring_regex))
+//						if (!is_partial && stem_word.equals(query_word) || is_partial && stem_word.matches(substring_regex))
+//						{
+						lock.read().lock();
+						
+						// All the Documents for that Specific Stem Word that contains that Query Word: Inner Map of Inverted Index
+						Map<String, ArrayList<Integer>> docs = inverted_index.get(stem_word);
+						
+						lock.read().unlock();
+						
+						lock.write().lock();
+						
+						// Loop through the Stem Word's Documents
+						for (String document : docs.keySet())
 						{
-							lock.read().lock();
+							// Initialized the Count to be Zero
+							values.putIfAbsent(document, 0);
 							
-							// All the Documents for that Specific Stem Word that contains that Query Word: Inner Map of Inverted Index
-							Map<String, ArrayList<Integer>> docs = inverted_index.get(stem_word);
-							
-							lock.read().unlock();
-							
-							lock.write().lock();
-							
-							// Loop through the Stem Word's Documents
-							for (String document : docs.keySet())
-							{
-								// Initialized the Count to be Zero
-								values.putIfAbsent(document, 0);
-								
-								// Increment the Count Based on the Size of the Inverted Index's Position's ArrayList Length
-								values.put(document, values.get(document) + docs.get(document).size());
-							}	
-							
-							lock.write().unlock();
-						}
+							// Increment the Count Based on the Size of the Inverted Index's Position's ArrayList Length
+							values.put(document, values.get(document) + docs.get(document).size());
+						}	
+						
+						lock.write().unlock();
+//						}
 					}
 				}
 			}
