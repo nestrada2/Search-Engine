@@ -41,9 +41,7 @@ public class MTInvertedIndex extends InvertedIndex
 	 */
 	public void add(String word)
 	{
-//		lock.write().lock();
 		inverted_index.putIfAbsent(word, new HashMap<String, ArrayList<Integer>>()); 
-//		lock.write().unlock();
 	}
 	
 	/**
@@ -133,7 +131,7 @@ public class MTInvertedIndex extends InvertedIndex
 			} 
 			catch (IOException e) 
 			{
-				e.printStackTrace();
+				System.out.println("Could not read the path \"" + current_path.toString() +"\"");
 			}
 		}
 	}

@@ -270,7 +270,7 @@ public class PrettyJsonWriter
 	 * notation used allows this method to be used for any type of map with any
 	 * type of nested collection of number objects.
 	 *
-	 * @param inverted_index the elements to write
+	 * @param invertedIndex the elements to write
 	 * @param writer the writer to use
 	 * @param indent the initial indent level; the first bracket is not indented,
 	 *   inner elements are indented by one, and the last bracket is indented at
@@ -288,14 +288,14 @@ public class PrettyJsonWriter
 	public static void writeNestedArrays(
 			// @TODO Please use camelCase, not snake case, since that's what you're using everywhere else
 			// @TODO: just pass in a Map and List, not a HashMap and ArrayList, we want this to work for any kind of Map or List
-			HashMap<String, HashMap<String, ArrayList<Integer>>> inverted_index,
+			HashMap<String, HashMap<String, ArrayList<Integer>>> invertedIndex,
 			Writer writer, int indent) throws IOException {
 
 		writer.flush();
-		int length = inverted_index.size();
+		int length = invertedIndex.size();
 		int index = 0;
 
-		if (inverted_index.isEmpty())
+		if (invertedIndex.isEmpty())
 		{
 			writer.write("{\n");
 			writeIndent("}", writer, indent);
@@ -305,30 +305,30 @@ public class PrettyJsonWriter
 			writeIndent("{\n", writer, 0);
 
 			// Turn Key Set to a List
-			List<String> sorted_keys = new ArrayList<>(inverted_index.keySet().stream().toList());
+			List<String> sortedKeys = new ArrayList<>(invertedIndex.keySet());
 
-			Collections.sort(sorted_keys);
+			Collections.sort(sortedKeys);
 
 			// Loop Through the Words
-			for (String key: sorted_keys)
+			for (String key: sortedKeys)
 			{
 				// Inner Map
 				// @TODO You should be using writeNestedArrays here instead of looping again.
 				// If you need the keys to be sorted, consider using a TreeMap instead of a HashMap
-				Map<String, ? extends Collection<? extends Number>> values = inverted_index.get(key);
+				Map<String, ? extends Collection<? extends Number>> values = invertedIndex.get(key);
 				// @TODO you can just pass in values.keySet() I think
-				List<String> sorted_values = new ArrayList<>(values.keySet().stream().toList());
-				int inner_map_length = sorted_values.size();
-				int inner_idx = 0;
+				List<String> sortedValues = new ArrayList<>(values.keySet());
+				int innerMapLength = sortedValues.size();
+				int innerIdx = 0;
 
-				Collections.sort(sorted_values);
+				Collections.sort(sortedValues);
 				writeQuote(key, writer, indent + 1);
 				writer.write(": ");
 				writeIndent("{\n", writer, 0);
 				writeIndent(writer, indent + 1);
 				
 				// Loop Through the Inner Map: Document & Position(s)
-				for (String value: sorted_values)
+				for (String value: sortedValues)
 				{
 					writeQuote(value, writer, indent + 1);
 					writer.write(": ");
@@ -337,13 +337,13 @@ public class PrettyJsonWriter
 					writeArray(numbers, writer, indent + 2);
 					
 					// Add a Comma Except for the Last Element
-					if (inner_idx != inner_map_length - 1)
+					if (innerIdx != innerMapLength - 1)
 					{
 						writer.write(",\n");
 						writeIndent(writer, 1);
 					}
 					
-					inner_idx += 1;
+					innerIdx += 1;
 				}
 				
 				// Add a Comma Except for the Last Element

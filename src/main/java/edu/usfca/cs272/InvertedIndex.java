@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Utility class for building the inverted index
@@ -77,13 +78,23 @@ public class InvertedIndex
 	public List<String> getSortedKeys()
 	{
 		// Turn Key Set to a List
-		// @TODO is it necessary to create a stream+list?
 		List<String> sorted_keys = new ArrayList<>(inverted_index.keySet());
 		
 		Collections.sort(sorted_keys);
 		
 		return Collections.unmodifiableList(sorted_keys);
 	}
+	
+	/**
+	 * Provides a view only copy of the inverted index's keys 
+	 * 
+	 * @return a set of the inverted index's keys (words)
+	 */
+	public Set<String> getKeys()
+	{
+		return Collections.unmodifiableSet(inverted_index.keySet());
+	}
+	
 	
 	/**
 	 * Provides the size of the inverted index
