@@ -2,14 +2,11 @@ package edu.usfca.cs272;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.Writer;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 /**
@@ -22,6 +19,28 @@ import java.util.TreeSet;
  */
 public class Driver 
 {
+	/* -------------------- Global Constants -------------------- */
+	
+	/**
+	 * Default Index JSON File if the Path Argument is not Provided
+	 */
+	private static final String DEFAULT_JSON_FILE = "index.json";
+	
+	/**
+	 * Default Counts JSON File if the Path Argument is not Provided
+	 */
+	private static final String DEFAULT_COUNTS_FILE = "counts.json";
+	
+	/**
+	 *  Default Results JSON File if the Path Argument is not Provided
+	 */
+	private static final String DEFAULT_RESULTS_FILE = "results.json";
+	
+	/**
+	 * Default Worker Threads if the Number of Threads is not Provided
+	 */
+	private static final int DEFAULT_THREADS = 5;
+	
 	/**
 	 * Initializes the classes necessary based on the provided command-line
 	 * arguments. This includes (but is not limited to) how to build or search an
@@ -39,17 +58,54 @@ public class Driver
 		/**
 		 * Inverted Index Builder: Stores the Mapping from Words to the Documents and Positions
 		 */
-		InvertedIndex inverted_index = new InvertedIndex();
+		InvertedIndex inverted_index;
 		
 		/**
 		 * Query Reader: Reads the Queries to be used for Search, Stems Each Word, and Adds Each Stem Word to a List
 		 */
-		QueryReader query_reader = new QueryReader();
+		QueryReader query_reader;
+		
 		
 		/* -------------------- Parsing -------------------- */
 		
 		// Parses the Arguments to Flags/Values
 		parse.parse(args);
+		
+		/* -------------------- Multithreading -------------------- */
+
+		if (parse.hasFlag("-threads"))
+		{	
+			// User did NOT provide Number of Worker Threads
+			if (!parse.hasValue("-threads"))
+			{
+				System.out.println("Did not specifiy number of worker threads, so will default to " + DEFAULT_THREADS + ".");
+			}
+			
+			// Number of Threads
+			int threads = parse.getInteger("-threads", DEFAULT_THREADS);
+			
+			// Negative Threads was Inputed, Default Back to 5 Threads
+			if (threads < 1)
+			{
+				System.out.println("Inputted fewer than 1 worker thread, so default back to " + DEFAULT_THREADS + ".");
+				
+				threads = DEFAULT_THREADS;
+			}
+				
+			// Multithreaded Inverted Index
+			inverted_index = new MTInvertedIndex(threads);
+			
+			// Multithreaded Query Reader
+			query_reader = new MTQueryReader(threads);
+		}
+		else
+		{
+			// Single Threaded Inverted Index
+			inverted_index = new InvertedIndex();
+			
+			// Single Threaded Query Reader
+			query_reader = new QueryReader();
+		}
 		
 		// Value of the Specified Flag
 		Path path = parse.getPath("-text");
@@ -66,8 +122,8 @@ public class Driver
 		{
 			try 
 			{
-				// Loop through all the Current Directories/Files and Adds all the Files into the ArrayList
-				path_list = FileFinder.listSourceFiles(path, 0);
+				// Loop through all the Current Directories/Files and Adds all the Files into an ArrayList
+				path_list = FileFinder.listSourceFiles(path);
 			}
 			catch (NoSuchFileException e)
 			{
@@ -91,13 +147,6 @@ public class Driver
 		}
 		
 		/* -------------------- JSON Formatting -------------------- */
-
-		// Default Output Path
-		// @TODO: put default values in global constants
-		// String json_file = DEFAULT_JSON_FILE;
-		String json_file = "index.json";
-		String counts_file = "counts.json";
-		String results_file = "results.json";
 		
 		// Default Search Operation for Query
 		boolean is_partial = true;
@@ -113,13 +162,15 @@ public class Driver
 		// Checks if the Inverted Index Should be Output to a JSON File  
 		if (parse.hasFlag("-index")) 
 		{
-			
-			// @TODO String json_file = parse.getString("-index", DEFAULT_JSON_FILE);
-			if (parse.hasValue("-index"))
+			// User did NOT Provided an Index File
+			if (!parse.hasValue("-index"))
 			{
-				// Gets the Value of the Specified File/Directory
-				json_file = parse.getString("-index");
+				System.out.println("Did NOT specificy an index file, so using " + DEFAULT_JSON_FILE);
 			}
+			
+			// Gets the Value of the Specified File/Directory
+			String json_file = parse.getString("-index", DEFAULT_JSON_FILE);
+			
 			
 			// Write to the JSON File
 			try (PrintWriter writer = new PrintWriter(json_file))
@@ -129,7 +180,7 @@ public class Driver
 			} 
 			catch (IOException e) 
 			{
-				System.out.println("Could not read file.");
+				System.out.println("Could NOT write to file \"" + json_file + "\"");
 			}
 		}
 		
@@ -137,12 +188,14 @@ public class Driver
 		
 		if (parse.hasFlag("-counts"))
 		{
-			// @TODO
-			if (parse.hasValue("-counts"))
+			// User did NOT Provided a Counts File
+			if (!parse.hasValue("-counts"))
 			{
-				// Gets the Value of the Specified File/Directory
-				counts_file = parse.getString("-counts");
+				System.out.println("Did NOT specificy a counts file, so using " + DEFAULT_COUNTS_FILE);
 			}
+			
+			// Gets the Value of the Specified File/Directory
+			String counts_file = parse.getString("-counts", DEFAULT_COUNTS_FILE);
 			
 			// Write to the JSON File
 			try (PrintWriter count_writer = new PrintWriter(counts_file))
@@ -152,7 +205,7 @@ public class Driver
 			}
 			catch (IOException e) 
 			{
-				System.out.println("Could not read counts file.");
+				System.out.println("Could NOT write to counts file \"" + counts_file + "\"");
 			}	
 		}
 		
@@ -160,7 +213,6 @@ public class Driver
 		
 		if (parse.hasFlag("-query"))
 		{
-			// @TODO: Probably want an warning telling the user that they need to specify a value
 			if (parse.hasValue("-query"))
 			{
 				// Gets the Name of the File Containing the User's Queries
@@ -182,8 +234,13 @@ public class Driver
 				}
 				catch (IOException e)
 				{
-					System.out.println("Could not read query file.");
+					System.out.println("Could not read query file \"" + query_file + "\"");
 				}
+			}
+			else
+			{
+				// User did NOT Provided a Query File
+				System.out.println("Could NOT calculate because did NOT specifiy where are the queries.");
 			}
 		}
 		
@@ -191,12 +248,14 @@ public class Driver
 		
 		if (parse.hasFlag("-results"))
 		{
-			// @TODO - getString("-results", backup)
-			if (parse.hasValue("-results"))
+			// User did NOT Provided a Results File
+			if (!parse.hasValue("-results"))
 			{
-				// Gets the Value of the Specified File/Directory
-				results_file = parse.getString("-results");
+				System.out.println("Did NOT Specificy a results file, so using " + DEFAULT_RESULTS_FILE);
 			}
+			
+			// Gets the Value of the Specified File/Directory
+			String results_file = parse.getString("-results", DEFAULT_RESULTS_FILE);
 				
 			// Write to the JSON File
 			try (PrintWriter results_writer = new PrintWriter(results_file))
@@ -206,9 +265,9 @@ public class Driver
 			}
 			catch (IOException e) 
 			{
-				System.out.println("Could not read results file.");
+				System.out.println("Could NOT write to results file \"" + results_file + "\"");
 			}	
-		}
+		}		
 	}
 }
 

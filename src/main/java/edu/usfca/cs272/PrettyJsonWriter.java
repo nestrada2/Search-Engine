@@ -371,9 +371,7 @@ public class PrettyJsonWriter
 	 * Entry of Each User's Query Search Data
 	 *
 	 */
-	// @TODO this should be in a separate class (file)
-		// @TODO: Comparable works with Generics. Instead of Object, this should be Entry so that you can just compare Entry to Entry
-	public static class Entry implements Comparable<Object>
+	public static class Entry implements Comparable<Entry>
 	{
 		/**
 		 * The Calculated Score for the Entry
@@ -401,13 +399,8 @@ public class PrettyJsonWriter
 		}
 
 		@Override
-		// @TODO this should be Entry input parameter
-		public int compareTo(Object o) 
+		public int compareTo(Entry e) 
 		{
-			// Cast Object to Entry
-			// @TODO remove casting! this is unsafe! If you pass in a non-Entry, this all breaks at runtime
-			Entry e = (Entry) o;
-			
 			if (score > e.getScore())
 			{
 				return -1;

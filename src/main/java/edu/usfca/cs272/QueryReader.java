@@ -26,7 +26,7 @@ public class QueryReader
 	/**
 	 * Stores a Mapping of a Clean, Stemmed Query to its Documents and Match Count for each Document
 	 */
-	private static TreeMap<String, TreeMap<String, Integer>> query_calculation;
+	protected static TreeMap<String, TreeMap<String, Integer>> query_calculation;
 	
 	/**
 	 * Instantiates the TreeMap

@@ -24,12 +24,11 @@ public class FileFinder
 	 * List All the Source Files under the given path
 	 * 
 	 * @param path a text file or a directory
-	 * @param depth how deep within the directory tree
 	 * @return a list to store all source files
 	 * @throws NoSuchFileException is the file does not exist
 	 * @throws IOException if the attributes of the file cannot be read
 	 */
-	public static List<Path> listSourceFiles(Path path, int depth) throws NoSuchFileException, IOException
+	public static List<Path> listSourceFiles(Path path) throws NoSuchFileException, IOException
 	{
 		// ArrayList to Store all the Paths
 		List<Path> path_list = new ArrayList<>();
@@ -51,7 +50,7 @@ public class FileFinder
 				if (isTextFile(current_path) || isDirectory(current_path))
 				{
 					// Recursive Call "listSourceFiles", Go Deeper in the Directory, Thus Add 1 to the Depth
-					List<Path> sub_list = listSourceFiles(current_path, depth + 1);
+					List<Path> sub_list = listSourceFiles(current_path);
 					
 					// Add the List of the Source Files in the Sub Directories to the List 
 					path_list.addAll(sub_list);

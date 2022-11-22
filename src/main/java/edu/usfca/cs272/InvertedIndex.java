@@ -23,12 +23,12 @@ public class InvertedIndex
 	/**
 	 * Stores the Mapping from Words to the Documents and Positions
 	 */
-	private static HashMap<String, HashMap<String, ArrayList<Integer>>> inverted_index;
+	protected static HashMap<String, HashMap<String, ArrayList<Integer>>> inverted_index;
 	
 	/**
 	 * Counts the Number of Words in a Document
 	 */
-	private static WordCount word_count;
+	protected static WordCount word_count;
 	
 	/**
 	 * Instantiates the Inverted Index and Word Count
@@ -78,7 +78,7 @@ public class InvertedIndex
 	{
 		// Turn Key Set to a List
 		// @TODO is it necessary to create a stream+list?
-		List<String> sorted_keys = new ArrayList<>(inverted_index.keySet().stream().toList());
+		List<String> sorted_keys = new ArrayList<>(inverted_index.keySet());
 		
 		Collections.sort(sorted_keys);
 		
