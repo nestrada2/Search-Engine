@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * Utility class for counting the words of a specific file
+ * Utility class for counting the number of words of a specific file
  * 
  * @author Nino Estrada
  * @author CS 272 Software Development (University of San Francisco)
@@ -30,9 +30,10 @@ public class WordCount
 	}
 	
 	/**
+	 * Increments the word count of a specific document
+	 * 
 	 * @param document is the current key to increment it's word count value
 	 */
-	 // @TODO shouldn't `document` be called `word`?
 	public void increment(String document)
 	{
 		

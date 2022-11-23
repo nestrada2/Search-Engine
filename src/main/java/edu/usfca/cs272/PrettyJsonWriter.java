@@ -179,7 +179,6 @@ public class PrettyJsonWriter
 		}
 		else
 		{
-			// @TODO is this `if` statement necessary? If indent is 0, then it'll write the same thing in either block
 			if (indent == 0)
 			{
 				writeIndent("{", writer, indent);
@@ -193,7 +192,6 @@ public class PrettyJsonWriter
 
 			for (Map.Entry<String, ? extends Number> entry: elements.entrySet())
 			{
-				// @TODO can you combine these 2 `if` statements? The condition is the same
 				if (indent == 0)
 				{
 					writeIndent(writer, 1);
@@ -282,12 +280,7 @@ public class PrettyJsonWriter
 	 * @see #writeIndent(String, Writer, int)
 	 * @see #writeArray(Collection)
 	 */
-	// @TODO: you should rename this to something like `writeNestedNestedArrays` or something,
-	// since you have 2 layers of Maps. Also, you should be using writeNestedArrays in this method, instead of
-	// manually writing every layer in this 1 method.
 	public static void writeNestedArrays(
-			// @TODO Please use camelCase, not snake case, since that's what you're using everywhere else
-			// @TODO: just pass in a Map and List, not a HashMap and ArrayList, we want this to work for any kind of Map or List
 			TreeMap<String, TreeMap<String, ArrayList<Integer>>> invertedIndex,
 			Writer writer, int indent) throws IOException {
 
@@ -304,15 +297,10 @@ public class PrettyJsonWriter
 		{
 			writeIndent("{\n", writer, 0);
 
-			// Turn Key Set to a List
-
-
 			// Loop Through the Words
 			for (String key: invertedIndex.keySet())
 			{
 				// Inner Map
-				// @TODO You should be using writeNestedArrays here instead of looping again.
-				// If you need the keys to be sorted, consider using a TreeMap instead of a HashMap
 				Map<String, ? extends Collection<? extends Number>> values = invertedIndex.get(key);
 	
 				List<String> sortedValues = new ArrayList<>(values.keySet());
@@ -486,7 +474,6 @@ public class PrettyJsonWriter
 	 *   the initial indentation level
 	 * @throws IOException if an IO error occurs
 	 */
-	// @TODO
 	public static void writeNestedArrays(
 			TreeMap<String, TreeMap<String, Integer>> query_calculation, Map<String, Integer> word_count,
 			Writer writer, int indent) throws IOException {
@@ -516,7 +503,6 @@ public class PrettyJsonWriter
 				
 				int inner_map_length = docs.size();
 				int inner_idx = 0;
-				
 				
 				TreeSet<Entry> scores = new TreeSet<Entry>();
 				

@@ -55,8 +55,11 @@ public class FileFinder
 					// Add the List of the Source Files in the Sub Directories to the List 
 					path_list.addAll(sub_list);
 				}
-				// @TODO: maybe output warning if we encounter a file that we don't expect?
-				// - like ignoring "file.xlsx" or something
+				else
+				{
+					// Warning Message
+					System.out.println("Encounter a file did not expect \"" + current_path + "\"");
+				}
 			}
 		}
 		else
