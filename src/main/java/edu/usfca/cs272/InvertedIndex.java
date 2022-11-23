@@ -6,12 +6,9 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.NavigableMap;
 import java.util.Set;
-import java.util.SortedMap;
 import java.util.TreeMap;
 
 /**
@@ -147,10 +144,15 @@ public class InvertedIndex
 		return Collections.unmodifiableCollection(inverted_index.keySet());
 	}
 	
-	// Getting ALl entries whose keys start with this query word
+	/**
+	 * Getting All entries whose keys start with this query word
+	 * 
+	 * @param query_word is the current query word
+	 * @return a set of keys that matches/starts with the passed in query word
+	 */
 	public Set<String> getByPrefix(String query_word) 
 	{
-		// Map that Matches this Query Word
+		// Convert a Portion of the Map that Matches/Starts with this Query Word to a Set
         return inverted_index.subMap(query_word, query_word + Character.MAX_VALUE).keySet();
     }
 	
@@ -256,3 +258,9 @@ public class InvertedIndex
 		return get(word).containsKey(document);
 	}
 }
+
+/*
+ * References
+ * subMap - https://docs.oracle.com/javase/8/docs/api/java/util/TreeMap.html
+ * Character.MAX_VALUE - https://docs.oracle.com/javase/7/docs/api/java/lang/Character.html#:~:text=The%20Character%20class%20wraps%20a,letter%2C%20digit%2C%20etc.)
+ */

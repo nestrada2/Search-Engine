@@ -443,13 +443,36 @@ public class PrettyJsonWriter
 		{
 			return document;
 		}
-
-		// @TODO: toMap()
-		// Create the {
-		//	"count": ,
-		//	"score": ,
-		//
-		// } that can be passed into PrettyJsonWriter
+		
+		/**
+		 * Writes an Entry as a JSON object
+		 * 
+		 * @param writer the writer to use
+		 * @param indent the initial indent level
+		 * @throws IOException if an IO error occurs
+		 */
+		public void toMap(Writer writer, int indent) throws IOException
+		{
+			// Count
+			writeIndent("{\n", writer, indent + 2);
+			writeQuote("count", writer, indent + 3);
+			writer.write(": ");
+			writer.write(getCount() + ",\n");
+			
+			// Score
+			writeQuote("score", writer, indent + 3);
+			writer.write(": ");
+			writer.write(String.format("%.8f", getScore()) + ",\n");
+			
+			// Where
+			writeQuote("where", writer, indent + 3);
+			writer.write(": ");
+			writeQuote(getDocument(), writer, 0);
+			writer.write("\n");
+			
+			
+			writeIndent("}", writer, indent + 2);
+		}
 	}
 	
 	/**
@@ -488,11 +511,6 @@ public class PrettyJsonWriter
 				writeQuote(query, writer, indent + 1);
 				writer.write(": ");
 				writeIndent("[\n", writer, 0);
-				
-				// @TODO: overall there's much too much search index-specific calculations going on here.
-				// PrettyJSONWriter should *only* be writing JSON, not computing anything related to the search index
-				// I'd suggest refactoring this so that you do the calculations somewhere else,
-				// create a datastructure you want print and then use PrettyJSONWriter to just print it
 
 				TreeMap<String, Integer> docs = query_calculation.get(query);
 				

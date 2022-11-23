@@ -3,7 +3,6 @@ package edu.usfca.cs272;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -18,16 +17,18 @@ public class MTInvertedIndex extends InvertedIndex
 {
 	
 	/**
-	 * 
+	 * Worker Threads
 	 */
 	WorkQueue multithreading;
 	/**
-	 * 
+	 * Lock Object Controls Access of the Shared Resources Among the Worker Threads
 	 */
 	ReadWriteLock lock;
 	
 	/**
-	 * @param threads
+	 * Instantiates the work queue and lock object
+	 * 
+	 * @param threads is the number of worker threads
 	 */
 	public MTInvertedIndex(int threads)
 	{
@@ -54,6 +55,7 @@ public class MTInvertedIndex extends InvertedIndex
 	 */
 	public void add(String word, String document, int position)
 	{
+		// Acquire the Write Lock
 		lock.write().lock();
 		
 		// Add Current "word" as a Key to the inverted index
@@ -71,6 +73,7 @@ public class MTInvertedIndex extends InvertedIndex
 		// Get the Position of the Current word in the Document and Add it to the HashMap as a Value
 		values.get(document).add(position);
 		
+		// Release the Write Lock
 		lock.write().unlock();
 	}
 	
@@ -86,32 +89,33 @@ public class MTInvertedIndex extends InvertedIndex
 		// Loop through the List of Paths
 		for (Path p : path_list) 
 		{
-			// adding all the tasks to the list
+			// Adds a Work (or Task) Request to the Queue
 			multithreading.execute(new Task(p));
 		}
 		
-		// wait for the work queue
+		// Wait for Work Queue's to Finish
 		multithreading.join();
 	}
 	
 	/**
-	 * Inner Task Checks 1 Number is Prime
+	 * Inner Task Checks if a Number is Prime
 	 *
 	 */
 	public class Task implements Runnable
 	{
 		/**
-		 * 
+		 * Current Document
 		 */
 		public Path current_path;
 
 		/**
-		 * @param current_path
+		 * Instantiates the current path
+		 * 
+		 * @param current_path is the current document
 		 */
 		public Task(Path current_path)
 		{
 			this.current_path = current_path;
-			
 		}
 
 		@Override
@@ -122,6 +126,7 @@ public class MTInvertedIndex extends InvertedIndex
 			
 			try 
 			{
+				// Cleans and Stems Each Word in English of the Current File
 				list = WordCleaner.listStems(current_path);
 				
 				// The Filename

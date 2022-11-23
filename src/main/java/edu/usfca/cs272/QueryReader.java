@@ -6,14 +6,11 @@ import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 /**
  * Utility class for reading, stemming, and listing the query file
@@ -62,7 +59,7 @@ public class QueryReader
 				// Stems Each Query (Word) in English
 				Set<String> clean_line = WordCleaner.uniqueStems(line);
 				
-				// If the User's Query are Empty
+				// If the User's Query are Empty and Continue to Next Iteration
 				if (clean_line.isEmpty())
 				{
 					continue;
@@ -91,7 +88,7 @@ public class QueryReader
 			// Character Class Trying to Catch "[,]"
 			String treeset_regex = "[,\\[\\]]";
 			
-			// TreeSet when toString() adds "[,]" so remove it
+			// When using the toString() Method to a TreeSet it Adds "[,]" so Remove It
 			String complete_query = query.toString().replaceAll(treeset_regex, "");
 			
 			// Skip this Query if it Already Been Seen
@@ -111,13 +108,17 @@ public class QueryReader
 			{
 				Set<String> matching_keys;
 				
-				// Exact Search
+				/* -------------------- Exact Search -------------------- */
+				
 				if (!is_partial)
 				{
 					// Query Word is in the Inverted Index
 					if (inverted_index.has(query_word))
 					{
+						// Instantiate the Set
 						matching_keys = new HashSet<String>();
+						
+						// Add the Query Word to the Set of Matching Words
 						matching_keys.add(query_word);
 					}
 					else
@@ -127,18 +128,10 @@ public class QueryReader
 				}
 				else
 				{
-					// Partial Search
-					matching_keys = inverted_index.getByPrefix(query_word);
+					/* -------------------- Partial Search -------------------- */
 					
-					// Loop through the Inverted Index's Words
-//					for (String stem_word : inverted_index.getSortedKeys())
-//					{
-//						// Query Word is in the Inverted Index Partially
-//						if (stem_word.startsWith(query_word))
-//						{
-//							matching_keys.add(stem_word);
-//						}
-//					}
+					// Checks if the Query Word is Partially in the Inverted Index
+					matching_keys = inverted_index.getByPrefix(query_word);
 				}
 				
 				// Loop through the Inverted Index's Words
@@ -171,8 +164,6 @@ public class QueryReader
 	 */
 	public void printJson(InvertedIndex inverted_index, Map<String, Integer> word_count, Writer writer) throws IOException
 	{
-		// @TODO: see my comments in PrettyJsonWriter. Maybe you can do more of the caulcuations here and create
-		// the data structure here
 		PrettyJsonWriter.writeNestedArrays(query_calculation, word_count, writer, 0);
 	}
 }
