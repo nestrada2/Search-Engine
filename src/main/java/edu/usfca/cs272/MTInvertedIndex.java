@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * @author Nino Estrada
@@ -41,7 +42,7 @@ public class MTInvertedIndex extends InvertedIndex
 	 */
 	public void add(String word)
 	{
-		inverted_index.putIfAbsent(word, new HashMap<String, ArrayList<Integer>>()); 
+		inverted_index.putIfAbsent(word, new TreeMap<String, ArrayList<Integer>>()); 
 	}
 	
 	/**

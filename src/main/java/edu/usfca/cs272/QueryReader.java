@@ -46,10 +46,10 @@ public class QueryReader
 	 * @throws IOException if the query file could not be read 
 	 * 
 	 */
-	public List<TreeSet<String>> clean(Path query_file) throws IOException
+	public List<Set<String>> clean(Path query_file) throws IOException
 	{
 		// Used to Store Each Query (Word) in a Sorted List
-		ArrayList<TreeSet<String>> list_of_queries = new ArrayList<TreeSet<String>>();
+		ArrayList<Set<String>> list_of_queries = new ArrayList<Set<String>>();
 		
 		// Read the User's Queries
 		try(BufferedReader reader = Files.newBufferedReader(query_file))
@@ -59,12 +59,8 @@ public class QueryReader
 			// Keep Looping through the User's Queries
 			while ((line = reader.readLine()) != null)
 			{
-				// Used to Store Each Query (Word) in a List
-				// @TODO no need to create a new ArrayList here that just gets replaced in the next line
-				ArrayList<String> clean_line = new ArrayList<>();
-				
-				// Stems the Word in English
-				clean_line = WordCleaner.listStems(line);
+				// Stems Each Query (Word) in English
+				Set<String> clean_line = WordCleaner.uniqueStems(line);
 				
 				// If the User's Query are Empty
 				if (clean_line.isEmpty())
@@ -72,9 +68,8 @@ public class QueryReader
 					continue;
 				}
 				
-				// Adding a TreeSet of Words of this Query to an ArrayList 
-				// @TODO just use uniqueStems instead of listStems if we want a set anyway
-				list_of_queries.add(new TreeSet<String>(clean_line));
+				// Adding a Set of Words of this Query to an ArrayList 
+				list_of_queries.add(clean_line);
 			}
 			
 			return list_of_queries;
@@ -88,10 +83,10 @@ public class QueryReader
 	 * @param list_of_queries is a list of TreeSet of queries
 	 * @param is_partial is checking if to calculate for exact or partial search
 	 */
-	public void search(InvertedIndex inverted_index, List<TreeSet<String>> list_of_queries, boolean is_partial) 
+	public void search(InvertedIndex inverted_index, List<Set<String>> list_of_queries, boolean is_partial) 
 	{		
 		// Looping through the List of Queries 
-		for (TreeSet<String> query : list_of_queries)
+		for (Set<String> query : list_of_queries)
 		{
 			// Character Class Trying to Catch "[,]"
 			String treeset_regex = "[,\\[\\]]";
@@ -114,7 +109,7 @@ public class QueryReader
 			// Looping through the Words of One Query
 			for (String query_word : query)
 			{
-				Set<String> matching_keys = new HashSet<String>();
+				Set<String> matching_keys;
 				
 				// Exact Search
 				if (!is_partial)
@@ -122,6 +117,7 @@ public class QueryReader
 					// Query Word is in the Inverted Index
 					if (inverted_index.has(query_word))
 					{
+						matching_keys = new HashSet<String>();
 						matching_keys.add(query_word);
 					}
 					else
@@ -132,43 +128,34 @@ public class QueryReader
 				else
 				{
 					// Partial Search
-					
-					// Substring (Query Word) is Present in the Current String within the ArrayList of Query Words
-//					String substring_regex = "(?m)^" + query_word + ".*";
+					matching_keys = inverted_index.getByPrefix(query_word);
 					
 					// Loop through the Inverted Index's Words
-					for (String stem_word : inverted_index.getSortedKeys())
-					{
-						// Query Word is in the Inverted Index Partially
-						if (stem_word.startsWith(query_word))
-						{
-							matching_keys.add(stem_word);
-						}
-					}
+//					for (String stem_word : inverted_index.getSortedKeys())
+//					{
+//						// Query Word is in the Inverted Index Partially
+//						if (stem_word.startsWith(query_word))
+//						{
+//							matching_keys.add(stem_word);
+//						}
+//					}
 				}
 				
 				// Loop through the Inverted Index's Words
 				for (String stem_word : matching_keys)
 				{
-//					// Substring (Query Word) is Present in the Current String within the ArrayList of Query Words
-//					String substring_regex = "(?m)^" + query_word + ".*";
+					// All the Documents for that Specific Stem Word that contains that Query Word: Inner Map of Inverted Index
+					Map<String, ArrayList<Integer>> docs = inverted_index.get(stem_word);
 					
-//					// Query Word is in the Inverted Index either Partially or Exact
-//					if (!is_partial && stem_word.equals(query_word) || is_partial && stem_word.matches(substring_regex))
-//					{
-						// All the Documents for that Specific Stem Word that contains that Query Word: Inner Map of Inverted Index
-						Map<String, ArrayList<Integer>> docs = inverted_index.get(stem_word);
+					// Loop through the Stem Word's Documents
+					for (String document : docs.keySet())
+					{
+						// Initialized the Count to be Zero
+						values.putIfAbsent(document, 0);
 						
-						// Loop through the Stem Word's Documents
-						for (String document : docs.keySet())
-						{
-							// Initialized the Count to be Zero
-							values.putIfAbsent(document, 0);
-							
-							// Increment the Count Based on the Size of the Inverted Index's Position's ArrayList Length
-							values.put(document, values.get(document) + docs.get(document).size());
-						}	
-//					}
+						// Increment the Count Based on the Size of the Inverted Index's Position's ArrayList Length
+						values.put(document, values.get(document) + docs.get(document).size());
+					}	
 				}
 			}
 		}

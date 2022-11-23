@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeSet;
 
 /**
@@ -222,11 +223,11 @@ public class Driver
 				Path query_path = Paths.get(query_file);
 				
 				// Used to Store all the Query Words in a List
-				List<TreeSet<String>> queries;
+				List<Set<String>> queries;
 				
 				try
 				{
-					// Reads and Steams the Query File to a List of a TreeSet 
+					// Reads and Steams the Query File to a List of a Set 
 					queries = query_reader.clean(query_path);
 					
 					// Calculates Partial or Exact Search Results 

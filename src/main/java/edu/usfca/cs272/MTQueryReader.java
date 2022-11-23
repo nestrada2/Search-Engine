@@ -41,11 +41,11 @@ public class MTQueryReader extends QueryReader {
 	 * @param list_of_queries is a list of TreeSet of queries
 	 * @param is_partial is checking if to calculate for exact or partial search
 	 */
-	public void search(InvertedIndex inverted_index, List<TreeSet<String>> list_of_queries, boolean is_partial) 
+	public void search(InvertedIndex inverted_index, List<Set<String>> list_of_queries, boolean is_partial) 
 	{
 		
 		// Looping through the List of Queries 
-		for (TreeSet<String> query : list_of_queries)
+		for (Set<String> query : list_of_queries)
 		{
 			multithreading.execute(new Task(query, inverted_index, is_partial));
 		}
@@ -60,7 +60,7 @@ public class MTQueryReader extends QueryReader {
 			/**
 			 * 
 			 */
-			TreeSet<String> query;
+			Set<String> query;
 			/**
 			 * 
 			 */
@@ -75,7 +75,7 @@ public class MTQueryReader extends QueryReader {
 			 * @param inverted_index
 			 * @param is_partial
 			 */
-			public Task(TreeSet<String> query, InvertedIndex inverted_index, boolean is_partial)
+			public Task(Set<String> query, InvertedIndex inverted_index, boolean is_partial)
 			{
 				this.query = query;
 				this.inverted_index = inverted_index;
@@ -121,7 +121,7 @@ public class MTQueryReader extends QueryReader {
 				// Looping through the Words of One Query
 				for (String query_word : query)
 				{
-					Set<String> matching_keys = new HashSet<String>();
+					Set<String> matching_keys;
 					
 					// Exact Search
 					if (!is_partial)
@@ -132,6 +132,8 @@ public class MTQueryReader extends QueryReader {
 						if (inverted_index.has(query_word))
 						{
 							lock.read().unlock();
+							
+							matching_keys = new HashSet<String>();
 							matching_keys.add(query_word);
 						}
 						else
@@ -146,19 +148,9 @@ public class MTQueryReader extends QueryReader {
 						
 						lock.read().lock();
 						
-						List<String> sorted_keys = inverted_index.getSortedKeys();
-						
+						matching_keys = inverted_index.getByPrefix(query_word);
+					
 						lock.read().unlock();
-						
-						// Loop through the Inverted Index's Words
-						for (String stem_word : inverted_index.getSortedKeys())
-						{
-							// Query Word is in the Inverted Index Partially
-							if (stem_word.startsWith(query_word))
-							{
-								matching_keys.add(stem_word);
-							}
-						}
 					}
 					
 					
@@ -166,10 +158,6 @@ public class MTQueryReader extends QueryReader {
 					for (String stem_word : matching_keys)
 					{
 						
-						
-						// Query Word is in the Inverted Index either Partially or Exact
-//						if (!is_partial && stem_word.equals(query_word) || is_partial && stem_word.matches(substring_regex))
-//						{
 						lock.read().lock();
 						
 						// All the Documents for that Specific Stem Word that contains that Query Word: Inner Map of Inverted Index
@@ -190,7 +178,6 @@ public class MTQueryReader extends QueryReader {
 						}	
 						
 						lock.write().unlock();
-//						}
 					}
 				}
 			}

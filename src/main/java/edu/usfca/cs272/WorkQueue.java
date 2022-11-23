@@ -41,10 +41,6 @@ public class WorkQueue {
 	/** Logger used for this class. */
 	private static final Logger log = LogManager.getLogger();
 
-	// TODO Modify existing methods if necessary.
-	// TODO Add new members and methods if necessary.
-
-
 	/**
 	 * Safely increments the shared pending variable.
 	 */
@@ -129,12 +125,8 @@ public class WorkQueue {
 		}
 		catch (InterruptedException e)
 		{
-			e.printStackTrace();
+			System.out.println("Work queue was interrupted while finishing.");
 		}
-
-		// TODO Fix this method implementation.
-		// TODO Add keywords to method declaration if necessary, but do not throw exceptions.
-		// throw new UnsupportedOperationException("Not yet implemented.");
 	}
 
 	/**

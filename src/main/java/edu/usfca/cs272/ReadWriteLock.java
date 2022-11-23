@@ -162,7 +162,7 @@ public class ReadWriteLock {
 		@Override
 		public void lock() {
 			/*
-			 * TODO This starts with the basic implementation from lecture (plus some
+			 * This starts with the basic implementation from lecture (plus some
 			 * logging). You will eventually need to modify it to check for whether
 			 * there is an active writer.
 			 */
@@ -170,7 +170,6 @@ public class ReadWriteLock {
 			log.debug("Acquiring read lock...");
 
 			try {
-				// TODO Note the lock object being used here and elsewhere
 				synchronized (lock) {
 					// as long as someone is writing that data can't read it
 					while (writers > 0 && !isActiveWriter())
@@ -236,7 +235,7 @@ public class ReadWriteLock {
 			log.debug("Acquiring write lock...");
 
 			try {
-				// TODO Note the lock object being used here and elsewhere
+				// Note the lock object being used here and elsewhere
 				synchronized (lock) {
 					// as long as someone is writing that data can't read it
 					while ((writers > 0 || readers > 0) && !isActiveWriter())

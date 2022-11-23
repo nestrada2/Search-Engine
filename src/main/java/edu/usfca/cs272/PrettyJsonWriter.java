@@ -288,7 +288,7 @@ public class PrettyJsonWriter
 	public static void writeNestedArrays(
 			// @TODO Please use camelCase, not snake case, since that's what you're using everywhere else
 			// @TODO: just pass in a Map and List, not a HashMap and ArrayList, we want this to work for any kind of Map or List
-			HashMap<String, HashMap<String, ArrayList<Integer>>> invertedIndex,
+			TreeMap<String, TreeMap<String, ArrayList<Integer>>> invertedIndex,
 			Writer writer, int indent) throws IOException {
 
 		writer.flush();
@@ -305,18 +305,16 @@ public class PrettyJsonWriter
 			writeIndent("{\n", writer, 0);
 
 			// Turn Key Set to a List
-			List<String> sortedKeys = new ArrayList<>(invertedIndex.keySet());
 
-			Collections.sort(sortedKeys);
 
 			// Loop Through the Words
-			for (String key: sortedKeys)
+			for (String key: invertedIndex.keySet())
 			{
 				// Inner Map
 				// @TODO You should be using writeNestedArrays here instead of looping again.
 				// If you need the keys to be sorted, consider using a TreeMap instead of a HashMap
 				Map<String, ? extends Collection<? extends Number>> values = invertedIndex.get(key);
-				// @TODO you can just pass in values.keySet() I think
+	
 				List<String> sortedValues = new ArrayList<>(values.keySet());
 				int innerMapLength = sortedValues.size();
 				int innerIdx = 0;
@@ -510,7 +508,6 @@ public class PrettyJsonWriter
 					// Count of Current Queries
 					int cur_count = query_calculation.get(query).get(document);
 					double score = (double) cur_count / word_count.get(document);
-					String formatted_score = String.format("%.8f", score);
 					
 					Entry cur_queries = new Entry(score, cur_count, document);
 					scores.add(cur_queries);

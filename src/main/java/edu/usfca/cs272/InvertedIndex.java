@@ -9,7 +9,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableMap;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * Utility class for building the inverted index
@@ -24,7 +27,7 @@ public class InvertedIndex
 	/**
 	 * Stores the Mapping from Words to the Documents and Positions
 	 */
-	protected static HashMap<String, HashMap<String, ArrayList<Integer>>> inverted_index;
+	protected static TreeMap<String, TreeMap<String, ArrayList<Integer>>> inverted_index;
 	
 	/**
 	 * Counts the Number of Words in a Document
@@ -36,7 +39,7 @@ public class InvertedIndex
 	 */
 	public InvertedIndex()
 	{
-		inverted_index = new HashMap<String, HashMap<String, ArrayList<Integer>>>();
+		inverted_index = new TreeMap<String, TreeMap<String, ArrayList<Integer>>>();
 		word_count = new WordCount();
 	}
 	
@@ -144,6 +147,13 @@ public class InvertedIndex
 		return Collections.unmodifiableCollection(inverted_index.keySet());
 	}
 	
+	// Getting ALl entries whose keys start with this query word
+	public Set<String> getByPrefix(String query_word) 
+	{
+		// Map that Matches this Query Word
+        return inverted_index.subMap(query_word, query_word + Character.MAX_VALUE).keySet();
+    }
+	
 	/**
 	 * Adds the word to the inverted index
 	 * 
@@ -151,7 +161,7 @@ public class InvertedIndex
 	 */
 	public void add(String word)
 	{
-		inverted_index.putIfAbsent(word, new HashMap<String, ArrayList<Integer>>()); 
+		inverted_index.putIfAbsent(word, new TreeMap<String, ArrayList<Integer>>()); 
 	}
 	
 	/**
