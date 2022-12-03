@@ -150,6 +150,90 @@ public class PrettyJsonWriter
 			return null;
 		}
 	}
+	
+	/**
+	 * Writes the elements as a pretty JSON object.
+	 *
+	 * @param elements the elements to write
+	 * @param writer the writer to use
+	 * @param indent the initial indent level; the first bracket is not indented,
+	 *   inner elements are indented by one, and the last bracket is indented at
+	 *   the initial indentation level
+	 * @throws IOException if an IO error occurs
+	 *
+	 * @see Writer#write(String)
+	 * @see #writeIndent(Writer, int)
+	 * @see #writeIndent(String, Writer, int)
+	 */
+	public static void writeMap(Map<String, Object> elements,
+								   Writer writer, int indent) throws IOException {
+
+		int index = 0;
+		int length = elements.size();
+		writer.flush();
+
+		// Empty Map
+		if (elements.isEmpty())
+		{
+			writer.write("{\n");
+			writeIndent("}", writer, indent);
+		}
+		else
+		{
+			writeIndent("{", writer,  0);
+			writer.write("\n");
+			
+			// Loop through the Map's Key-Value Pairs
+			for (Map.Entry<String, Object> entry: elements.entrySet())
+			{
+				// Format Map's Key
+				if (indent == 0)
+				{
+					writeIndent(writer, 1);
+					writeQuote(entry.getKey(), writer, indent);
+				}
+				else
+				{
+					writeQuote(entry.getKey(), writer, indent + 1);
+
+				}
+
+				writer.write(": ");
+				
+				Object value = entry.getValue();
+				
+				// Format Map's Value
+				if (value instanceof Number)
+				{
+					if (value instanceof Double)
+					{
+						writer.write(String.format("%.8f", value));
+					}
+					else
+					{
+					writeIndent(value.toString(), writer, 0);
+					}
+				}
+				else
+				{
+					writeQuote(value.toString(), writer, 0);
+				}
+				
+				// Add a Comma If not the Last Element
+				if (index != length - 1)
+				{
+					writer.write(",\n");
+				}
+
+				// Increment Index
+				index += 1;
+			}
+
+			writer.write("\n");
+
+			writeIndent("}", writer, indent);
+		}
+	}
 
 	/**
 	 * Writes the elements as a pretty JSON object.
@@ -172,6 +256,7 @@ public class PrettyJsonWriter
 		int length = elements.size();
 		writer.flush();
 
+		// Empty Map
 		if (elements.isEmpty())
 		{
 			writer.write("{\n");
@@ -179,26 +264,16 @@ public class PrettyJsonWriter
 		}
 		else
 		{
-			if (indent == 0)
-			{
-				writeIndent("{", writer, indent);
-				writer.write("\n");
-			}
-			else
-			{
-				writeIndent("{", writer,  0);
-				writer.write("\n");
-			}
-
+			writeIndent("{", writer,  0);
+			writer.write("\n");
+			
+			// Loop through the Map's Key-Value Pairs
 			for (Map.Entry<String, ? extends Number> entry: elements.entrySet())
 			{
+				// Format Map's Key
 				if (indent == 0)
 				{
 					writeIndent(writer, 1);
-				}
-
-				if (indent == 0)
-				{
 					writeQuote(entry.getKey(), writer, indent);
 				}
 				else
@@ -208,6 +283,8 @@ public class PrettyJsonWriter
 				}
 
 				writer.write(": ");
+				
+				// Format Map's Value
 				writeIndent(entry.getValue().toString(), writer, 0);
 
 				// Add a Comma If not the Last Element
@@ -216,6 +293,7 @@ public class PrettyJsonWriter
 					writer.write(",\n");
 				}
 
+				// Increment Index
 				index += 1;
 			}
 
@@ -264,9 +342,7 @@ public class PrettyJsonWriter
 	}
 
 	/**
-	 * Writes the elements as a pretty JSON object with nested arrays. The generic
-	 * notation used allows this method to be used for any type of map with any
-	 * type of nested collection of number objects.
+	 * Writes the inverted index as a pretty JSON object with nested arrays.
 	 *
 	 * @param invertedIndex the elements to write
 	 * @param writer the writer to use
@@ -275,12 +351,8 @@ public class PrettyJsonWriter
 	 *   the initial indentation level
 	 * @throws IOException if an IO error occurs
 	 *
-	 * @see Writer#write(String)
-	 * @see #writeIndent(Writer, int)
-	 * @see #writeIndent(String, Writer, int)
-	 * @see #writeArray(Collection)
 	 */
-	public static void writeNestedArrays(
+	public static void writeDoubleNestedArrays(
 			TreeMap<String, TreeMap<String, ArrayList<Integer>>> invertedIndex,
 			Writer writer, int indent) throws IOException {
 
@@ -288,6 +360,7 @@ public class PrettyJsonWriter
 		int length = invertedIndex.size();
 		int index = 0;
 
+		// Empty Inverted Index (Nested TreeMap)
 		if (invertedIndex.isEmpty())
 		{
 			writer.write("{\n");
@@ -301,49 +374,25 @@ public class PrettyJsonWriter
 			for (String key: invertedIndex.keySet())
 			{
 				// Inner Map
-				Map<String, ? extends Collection<? extends Number>> values = invertedIndex.get(key);
+				Map<String, ? extends Collection<? extends Number>> innerMap = invertedIndex.get(key);
 	
-				List<String> sortedValues = new ArrayList<>(values.keySet());
-				int innerMapLength = sortedValues.size();
+				int innerMapLength = innerMap.size();
 				int innerIdx = 0;
 
-				Collections.sort(sortedValues);
 				writeQuote(key, writer, indent + 1);
 				writer.write(": ");
-				writeIndent("{\n", writer, 0);
-				writeIndent(writer, indent + 1);
 				
-				// Loop Through the Inner Map: Document & Position(s)
-				for (String value: sortedValues)
-				{
-					writeQuote(value, writer, indent + 1);
-					writer.write(": ");
-					Collection<? extends Number> numbers = values.get(value);
-		
-					writeArray(numbers, writer, indent + 2);
-					
-					// Add a Comma Except for the Last Element
-					if (innerIdx != innerMapLength - 1)
-					{
-						writer.write(",\n");
-						writeIndent(writer, 1);
-					}
-					
-					innerIdx += 1;
-				}
+				// Writes the Map's Elements as a Pretty JSON Object
+				writeNestedArrays(innerMap, writer, indent + 1);
 				
 				// Add a Comma Except for the Last Element
 				if (index != length - 1)
 				{
-					writer.write("\n");
-					writeIndent("},\n", writer, 1);
+					writer.write(",\n");
 				}
-				else
-				{
-					writer.write("\n");
-					writeIndent("}", writer, 1);
-				}
+
 				
+				// Increment Index
 				index += 1;
 			}
 
@@ -354,135 +403,26 @@ public class PrettyJsonWriter
 	}
 	
 	/**
-	 * Entry of Each User's Query Search Data
-	 *
-	 */
-	public static class Entry implements Comparable<Entry>
-	{
-		/**
-		 * The Calculated Score for the Entry
-		 */
-		double score;
-		/**
-		 * The Number of Times the Entry is in the Document
-		 */
-		int count;
-		/**
-		 * The Filename
-		 */
-		String document;
-		
-		/**
-		 * @param score is the query words score
-		 * @param count is the query words count
-		 * @param document is the query's filename
-		 */
-		public Entry (double score, int count, String document)
-		{
-			this.score = score;
-			this.count = count;
-			this.document = document;
-		}
-
-		@Override
-		public int compareTo(Entry e) 
-		{
-			if (score > e.getScore())
-			{
-				return -1;
-			}
-			else if (score < e.getScore())
-			{
-				return 1;
-			}
-			else if (count > e.getCount())
-			{
-				return -1;
-			}
-			else if (count < e.getCount())
-			{
-				return 1;
-			}
-		
-			
-			return document.compareTo(e.getDocument());
-		}
-		
-		/**
-		 * @return the count
-		 */
-		public int getCount() 
-		{
-			return count;
-		}
-
-		/**
-		 * @return the score
-		 */
-		public double getScore() 
-		{
-			return score;
-		}
-
-		/**
-		 * @return the document
-		 */
-		public String getDocument() 
-		{
-			return document;
-		}
-		
-		/**
-		 * Writes an Entry as a JSON object
-		 * 
-		 * @param writer the writer to use
-		 * @param indent the initial indent level
-		 * @throws IOException if an IO error occurs
-		 */
-		public void toMap(Writer writer, int indent) throws IOException
-		{
-			// Count
-			writeIndent("{\n", writer, indent + 2);
-			writeQuote("count", writer, indent + 3);
-			writer.write(": ");
-			writer.write(getCount() + ",\n");
-			
-			// Score
-			writeQuote("score", writer, indent + 3);
-			writer.write(": ");
-			writer.write(String.format("%.8f", getScore()) + ",\n");
-			
-			// Where
-			writeQuote("where", writer, indent + 3);
-			writer.write(": ");
-			writeQuote(getDocument(), writer, 0);
-			writer.write("\n");
-			
-			
-			writeIndent("}", writer, indent + 2);
-		}
-	}
-	
-	/**
 	 * Writes the queries as a pretty JSON object with nested arrays.
 	 * 
-	 * @param query_calculation is a TreeMap that stores a mapping of queries to documents and its counts
-	 * @param word_count is a mapping of words and their total count based on a specific document
+	 * @param queryCalculation is a TreeMap that stores a mapping of queries to documents and its counts
+	 * @param wordCount is a mapping of words and their total count based on a specific document
 	 * @param writer the writer to use
 	 * @param indent the initial indent level; the first bracket is not indented,
 	 *   inner elements are indented by one, and the last bracket is indented at
 	 *   the initial indentation level
 	 * @throws IOException if an IO error occurs
 	 */
-	public static void writeNestedArrays(
-			TreeMap<String, TreeMap<String, Integer>> query_calculation, Map<String, Integer> word_count,
+	public static void writeDoubleNestedArrays(
+			TreeMap<String, TreeSet<Entry>> queryCalculation, Map<String, Integer> wordCount,
 			Writer writer, int indent) throws IOException {
 
 		writer.flush();
-		int length = query_calculation.size();
+		int length = queryCalculation.size();
 		int index = 0;
 
-		if (query_calculation.isEmpty())
+		// Empty Nested TreeMap
+		if (queryCalculation.isEmpty())
 		{
 			writer.write("{\n");
 			writeIndent("}", writer, indent);
@@ -492,52 +432,27 @@ public class PrettyJsonWriter
 			writeIndent("{\n", writer, 0);
 
 			// Loop Through all the Queries
-			for (String query: query_calculation.keySet())
+			for (String query: queryCalculation.keySet())
 			{
 				// Format Query
 				writeQuote(query, writer, indent + 1);
 				writer.write(": ");
 				writeIndent("[\n", writer, 0);
 
-				TreeMap<String, Integer> docs = query_calculation.get(query);
+//				TreeMap<String, Integer> docs = queryCalculation.get(query);
+//				
 				
-				int inner_map_length = docs.size();
+				TreeSet<Entry> scores = queryCalculation.get(query);
+				
+				int inner_map_length = scores.size();
 				int inner_idx = 0;
 				
-				TreeSet<Entry> scores = new TreeSet<Entry>();
 				
-				// Loop Through all the Documents of that Specific Queries
-				for (String document : docs.keySet())
-				{
-					// Count of Current Queries
-					int cur_count = query_calculation.get(query).get(document);
-					double score = (double) cur_count / word_count.get(document);
-					
-					Entry cur_queries = new Entry(score, cur_count, document);
-					scores.add(cur_queries);
-				}
 				
 				for (Entry score : scores)
 				{
-					// Count
-					writeIndent("{\n", writer, indent + 2);
-					writeQuote("count", writer, indent + 3);
-					writer.write(": ");
-					writer.write(score.getCount() + ",\n");
-					
-					// Score
-					writeQuote("score", writer, indent + 3);
-					writer.write(": ");
-					writer.write(String.format("%.8f", score.getScore()) + ",\n");
-					
-					// Where
-					writeQuote("where", writer, indent + 3);
-					writer.write(": ");
-					writeQuote(score.getDocument(), writer, 0);
-					writer.write("\n");
-					
-					
-					writeIndent("}", writer, indent + 2);
+					writeIndent(writer, indent + 2);
+					writeMap(score.toMap(), writer, indent + 2);
 					
 					// Add a Comma Except for the Last Element
 					if (inner_idx != inner_map_length - 1)
@@ -549,6 +464,7 @@ public class PrettyJsonWriter
 						writeIndent("\n", writer, 0);
 					}
 					
+					// Increment Index
 					inner_idx += 1;
 				}
 				
@@ -563,12 +479,80 @@ public class PrettyJsonWriter
 					writeIndent("]", writer, 1);
 				}
 				
+				// Increment Index
 				index += 1;
 			}
 
 			writer.write("\n");
 			writeIndent("}", writer, indent);
 			writer.write("\n");
+		}
+	}
+	
+	/**
+	 * Writes the elements as a pretty JSON object with nested arrays. The generic
+	 * notation used allows this method to be used for any type of map with any
+	 * type of nested collection of number objects.
+	 *
+	 * @param elements the elements to write
+	 * @param writer the writer to use
+	 * @param indent the initial indent level; the first bracket is not indented,
+	 *   inner elements are indented by one, and the last bracket is indented at
+	 *   the initial indentation level
+	 * @throws IOException if an IO error occurs
+	 *
+	 * @see Writer#write(String)
+	 * @see #writeIndent(Writer, int)
+	 * @see #writeIndent(String, Writer, int)
+	 * @see #writeArray(Collection)
+	 */
+	public static void writeNestedArrays(
+			Map<String, ? extends Collection<? extends Number>> elements,
+			Writer writer, int indent) throws IOException {
+
+		writer.flush();
+		int length = elements.size();
+		int index = 0;
+
+		// Empty Map
+		if (elements.isEmpty())
+		{
+			writer.write("{\n");
+			writeIndent("}", writer, indent);
+		}
+		else
+		{
+			writeIndent("{\n", writer, 0);
+
+			// Turn Map's Key Set to a List
+			List<String> sorted = new ArrayList<>(elements.keySet());
+			
+			// Sort the Map's Key Set - Passed in Map could be a HashMap/HashTable
+			Collections.sort(sorted);
+
+			// Loop through the Map's Keys
+			for (String key: sorted)
+			{
+				// Format Map's Key
+				writeQuote(key, writer, indent + 1);
+				writer.write(": ");
+				Collection<? extends Number> numbers = elements.get(key);
+				
+				// Writes the Map's Values as a Pretty JSON Object
+				writeArray(numbers, writer, indent + 1);
+
+				// Add a Comma Except for the Last Element
+				if (index != length - 1)
+				{
+					writer.write(",\n");
+				}
+				
+				// Increment Index
+				index += 1;
+			}
+
+			writer.write("\n");
+			writeIndent("}", writer, indent);
 		}
 	}
 
@@ -583,13 +567,13 @@ public class PrettyJsonWriter
 	 * @see StandardCharsets#UTF_8
 	 * @see #writeNestedArrays(Map, Writer, int)
 	 */
-//	public static void writeNestedArrays(
-//			Map<String, ? extends Collection<? extends Number>> elements, Path path)
-//			throws IOException {
-//		try (BufferedWriter writer = Files.newBufferedWriter(path, UTF_8)) {
-//			writeNestedArrays(elements, writer, 0);
-//		}
-//	}
+	public static void writeNestedArrays(
+			Map<String, ? extends Collection<? extends Number>> elements, Path path)
+			throws IOException {
+		try (BufferedWriter writer = Files.newBufferedWriter(path, UTF_8)) {
+			writeNestedArrays(elements, writer, 0);
+		}
+	}
 
 	/**
 	 * Returns the elements as a pretty JSON object with nested arrays.
@@ -600,17 +584,17 @@ public class PrettyJsonWriter
 	 * @see StringWriter
 	 * @see #writeNestedArrays(Map, Writer, int)
 	 */
-//	public static String writeNestedArrays(
-//			Map<String, ? extends Collection<? extends Number>> elements) {
-//		try {
-//			StringWriter writer = new StringWriter();
-//			writeNestedArrays(elements, writer, 0);
-//			return writer.toString();
-//		}
-//		catch (IOException e) {
-//			return null;
-//		}
-//	}
+	public static String writeNestedArrays(
+			Map<String, ? extends Collection<? extends Number>> elements) {
+		try {
+			StringWriter writer = new StringWriter();
+			writeNestedArrays(elements, writer, 0);
+			return writer.toString();
+		}
+		catch (IOException e) {
+			return null;
+		}
+	}
 
 	/**
 	 * Writes the elements as a pretty JSON array with nested objects. The generic
@@ -637,8 +621,8 @@ public class PrettyJsonWriter
 
 		int index = 0;
 		int length = elements.size();
-		System.out.println("Elements Length: " + length);
-
+		
+		// Empty Collection
 		if (elements.isEmpty())
 		{
 			writeIndent("[", writer, indent);
@@ -653,12 +637,12 @@ public class PrettyJsonWriter
 			writer.write("\n");
 			writeIndent(writer,1);
 
+			// Loop through the Collection's Values (Map: Key-Value Pairs)
 			for (Map<String, ? extends Number> map: elements)
 			{
-				String check = writeObject(map);
+				// Writes the Map's Elements as a Pretty JSON Object
 				writeObject(map, writer, indent + 1);
-				System.out.println("This is the object: " + check);
-
+				
 				// Add a Comma Except for the Last Element
 				if (index != length - 1)
 				{
@@ -666,6 +650,7 @@ public class PrettyJsonWriter
 					writeIndent(writer, 1);
 				}
 
+				// Increment Index
 				index += 1;
 			}
 
