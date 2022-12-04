@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 /**
  * Utility class for reading, stemming, and listing the query file
@@ -25,7 +26,12 @@ public class QueryReader
 	/**
 	 * Stores a Mapping of a Clean, Stemmed Query to its Documents and Match Count for each Document
 	 */
-	protected static TreeMap<String, TreeMap<String, Integer>> query_calculation;
+	protected TreeMap<String, TreeMap<String, Integer>> query_calculation;
+	
+	/**
+	 * Stores a Mapping of each Entry to it's Score
+	 */
+	protected TreeMap<String, TreeSet<Entry>> scores;
 	
 	/**
 	 * Instantiates the TreeMap
@@ -33,6 +39,7 @@ public class QueryReader
 	public QueryReader()
 	{	
 		query_calculation = new TreeMap<>();
+		scores = new TreeMap<>();
 	}
 	
 	/**
@@ -155,6 +162,40 @@ public class QueryReader
 	}
 	
 	/**
+	 * Computes and calculates the score of each entry (queries) 
+	 * 
+	 * @param word_count is the mapping of a document and it's word count
+	 */
+	public void calculateScore(Map<String, Integer> word_count)
+	{
+		// Loop Through all the Queries
+		for (String query: query_calculation.keySet())
+		{
+			// Mapping of a Document and it's Word Count
+			TreeMap<String, Integer> docs = query_calculation.get(query);
+			
+			// Query Scores
+			TreeSet<Entry> scores = new TreeSet<Entry>();
+			
+			// Loop Through all the Documents of that Specific Queries
+			for (String document : docs.keySet())
+			{
+				// Count of Current Queries
+				int cur_count = query_calculation.get(query).get(document);
+				
+				// Score of Current Queries
+				double score = (double) cur_count / word_count.get(document);
+				
+				// Document of Current Queries
+				Entry cur_queries = new Entry(score, cur_count, document);
+				scores.add(cur_queries);
+			}
+			
+			this.scores.put(query, scores);
+		}
+	}
+	
+	/**
 	 * Prints the exact or partial search results in JSON format
 	 * 
 	 * @param inverted_index is the class used to retrieve which word count of a specific document
@@ -164,6 +205,6 @@ public class QueryReader
 	 */
 	public void printJson(InvertedIndex inverted_index, Map<String, Integer> word_count, Writer writer) throws IOException
 	{
-		PrettyJsonWriter.writeNestedArrays(query_calculation, word_count, writer, 0);
+		PrettyJsonWriter.writeDoubleNestedArrays(scores, word_count, writer, 0);
 	}
 }

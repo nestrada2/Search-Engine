@@ -48,7 +48,7 @@ public class InvertedIndex
 	 */
 	public void printJson(Writer writer) throws IOException
 	{
-		PrettyJsonWriter.writeNestedArrays(inverted_index, writer, 0);
+		PrettyJsonWriter.writeDoubleNestedArrays(inverted_index, writer, 0);
 	}
 	
 	/**

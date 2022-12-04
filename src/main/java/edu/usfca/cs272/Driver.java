@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -171,7 +172,6 @@ public class Driver
 			// Gets the Value of the Specified File/Directory
 			String json_file = parse.getString("-index", DEFAULT_JSON_FILE);
 			
-			
 			// Write to the JSON File
 			try (PrintWriter writer = new PrintWriter(json_file))
 			{
@@ -260,8 +260,14 @@ public class Driver
 			// Write to the JSON File
 			try (PrintWriter results_writer = new PrintWriter(results_file))
 			{
+				// Word Count
+				Map<String, Integer> word_count = inverted_index.getWordCount();
+				
+				// Calculates the Score of Each Entry
+				query_reader.calculateScore(word_count);
+				
 				// Formatting the Writer
-				query_reader.printJson(inverted_index, inverted_index.getWordCount(), results_writer);
+				query_reader.printJson(inverted_index, word_count, results_writer);
 			}
 			catch (IOException e) 
 			{
