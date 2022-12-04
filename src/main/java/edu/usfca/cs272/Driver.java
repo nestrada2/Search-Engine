@@ -2,6 +2,8 @@ package edu.usfca.cs272;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -66,6 +68,10 @@ public class Driver
 		 */
 		QueryReader query_reader;
 		
+		String web_page = null;
+		int threads = 1;
+		int max = 1;
+		
 		
 		/* -------------------- Parsing -------------------- */
 		
@@ -83,7 +89,7 @@ public class Driver
 			}
 			
 			// Number of Threads
-			int threads = parse.getInteger("-threads", DEFAULT_THREADS);
+			threads = parse.getInteger("-threads", DEFAULT_THREADS);
 			
 			// Negative Threads was Inputed, Default Back to 5 Threads
 			if (threads < 1)
@@ -92,7 +98,48 @@ public class Driver
 				
 				threads = DEFAULT_THREADS;
 			}
+			
+		}
+		
+		/* -------------------- HTML -------------------- */
+		
+		if (parse.hasFlag("-html"))
+		{	
+			// User did NOT provide a webpage
+			if (!parse.hasValue("-html"))
+			{
+				System.out.println("Did not specifiy a webpage.");
 				
+				// Terminate the Program
+				System.exit(1);
+			}
+			
+			// Webpage
+			web_page = parse.getString("-html");
+			
+			// Negative Threads was Inputed, Default Back to 5 Threads
+			if (threads == 1)
+			{
+				System.out.println("Did not specifiy number of worker threads, so will default to " + DEFAULT_THREADS + ".");
+				
+				threads = DEFAULT_THREADS;
+			}
+		}
+		
+		/* -------------------- Max -------------------- */
+		
+		if (parse.hasFlag("-max"))
+		{	
+			// Max Number of Webpages
+			if (parse.hasValue("-max"))
+			{
+				max = parse.getInteger("-max", 1);
+			}
+		}
+		
+		
+		if (threads > 1)
+		{		
 			// Multithreaded Inverted Index
 			inverted_index = new MTInvertedIndex(threads);
 			
@@ -107,6 +154,8 @@ public class Driver
 			// Single Threaded Query Reader
 			query_reader = new QueryReader();
 		}
+		
+		
 		
 		// Value of the Specified Flag
 		Path path = parse.getPath("-text");
@@ -137,14 +186,36 @@ public class Driver
 		}
 		
 		/* -------------------- Inverted Index Formatting -------------------- */
-	
-		try
+		
+		if (!path_list.isEmpty())
 		{
-			inverted_index.add(path_list);
+			
+		
+			try
+			{
+				inverted_index.add(path_list);
+			}
+			catch (IOException e)
+			{
+				System.out.println("Could not read file.");
+			}
 		}
-		catch (IOException e)
+		
+		if (web_page != null)
 		{
-			System.out.println("Could not read file.");
+			try 
+			{
+				URL seed = new URL(web_page);
+				((MTInvertedIndex) inverted_index).addHtml(seed);
+			} 
+			catch (MalformedURLException e) 
+			{
+				System.out.println("malfunction URL");
+			}
+			catch (IOException e) 
+			{
+				System.out.println("IO error while processing webpage.");
+			}
 		}
 		
 		/* -------------------- JSON Formatting -------------------- */
