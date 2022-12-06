@@ -34,7 +34,7 @@ public class QueryReader
 	protected TreeMap<String, TreeSet<Entry>> scores;
 	
 	/**
-	 * Instantiates the TreeMap
+	 * Instantiates the TreeMaps
 	 */
 	public QueryReader()
 	{	
