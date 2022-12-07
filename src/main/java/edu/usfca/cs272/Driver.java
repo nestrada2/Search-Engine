@@ -68,7 +68,7 @@ public class Driver
 		 */
 		QueryReader query_reader;
 		
-		String web_page = null;
+		String seed = null;
 		int threads = 1;
 		int max = 1;
 		
@@ -111,14 +111,14 @@ public class Driver
 				System.out.println("Did not specifiy a webpage.");
 				
 				// Terminate the Program
-				System.exit(1);
+				return;
 			}
 			
 			// Webpage
-			web_page = parse.getString("-html");
+			seed = parse.getString("-html");
 			
-			// Negative Threads was Inputed, Default Back to 5 Threads
-			if (threads == 1)
+			// Didn't Specify Number of Worker Threads
+			if (!parse.hasValue("-threads"))
 			{
 				System.out.println("Did not specifiy number of worker threads, so will default to " + DEFAULT_THREADS + ".");
 				
@@ -137,14 +137,15 @@ public class Driver
 			}
 		}
 		
-		
-		if (threads > 1)
+		// Seed - Implies that we are using Html
+		if (threads > 1 || seed != null)
 		{		
 			// Multithreaded Inverted Index
-			inverted_index = new MTInvertedIndex(threads);
+			inverted_index = new MTInvertedIndex(threads, max);
 			
 			// Multithreaded Query Reader
 			query_reader = new MTQueryReader(threads);
+			
 		}
 		else
 		{
@@ -201,12 +202,12 @@ public class Driver
 			}
 		}
 		
-		if (web_page != null)
+		if (seed != null)
 		{
 			try 
 			{
-				URL seed = new URL(web_page);
-				((MTInvertedIndex) inverted_index).addHtml(seed);
+				URL seed_url = new URL(seed);
+				((MTInvertedIndex) inverted_index).addHtml(seed_url);
 			} 
 			catch (MalformedURLException e) 
 			{
