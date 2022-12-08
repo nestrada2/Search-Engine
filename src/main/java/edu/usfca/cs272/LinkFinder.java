@@ -66,7 +66,7 @@ public class LinkFinder
 			}
 			catch (MalformedURLException | URISyntaxException e)
 			{
-				//e.printStackTrace();
+				System.out.println("invalid url");
 			}
 
 			// Don't find same Match

@@ -49,7 +49,7 @@ public class MTInvertedIndex extends InvertedIndex
 	 * Instantiates the work queue and lock object
 	 * 
 	 * @param threads is the number of worker threads
-	 * @param max_crawl 
+	 * @param max_crawl maximum urls to fetch
 	 */
 	public MTInvertedIndex(int threads, int max_crawl)
 	{
@@ -57,14 +57,6 @@ public class MTInvertedIndex extends InvertedIndex
 		lock = new ReadWriteLock();
 		this.max_crawl = max_crawl;
 		total_crawl = 0;
-	}
-	
-	/**
-	 * @param max_crawl
-	 */
-	public void setMaxCrawl(int max_crawl)
-	{
-		this.max_crawl = max_crawl;
 	}
 	
 	/**
@@ -131,7 +123,7 @@ public class MTInvertedIndex extends InvertedIndex
 	/**
 	 * Loops through the URLs and adds its respected values to the inverted index
 	 * 
-	 * @param seed_is the starting url for web crawling
+	 * @param seed is the starting url for web crawling
 	 * @throws IOException if there is an IO error
 	 */
 	public void addHtml(URL seed) throws IOException
@@ -193,7 +185,7 @@ public class MTInvertedIndex extends InvertedIndex
 	}
 	
 	/**
-	 * @author nino
+	 * Worker Thread to process 1 single URL
 	 *
 	 */
 	public class HtmlTask implements Runnable 
@@ -219,8 +211,6 @@ public class MTInvertedIndex extends InvertedIndex
 			
 			// Add all the Cleaned and Stemmed English Words of the Current File in a new ArrayList 
 			ArrayList<String> list;
-			
-//			System.out.println(current_url);
 
 			var results = HtmlFetcher.fetch(current_url, 3);
 
@@ -229,20 +219,11 @@ public class MTInvertedIndex extends InvertedIndex
 				return;
 			}
 			
-//			// Acquire the Write Lock
-//			lock.write().lock();
-//			total_crawl += 1;
-//			// Release the Write Lock
-//			lock.write().unlock();
-			
 			String content;
 			content = HtmlCleaner.stripBlockElements(results);
 			
 			// Getting the Links inside the Html Code
 			List<URL> links = LinkFinder.listUrls(current_url, content);
-			
-//			// Acquire the Write Lock
-//			lock.write().lock();
 			
 			// Loop through the Links and Give each Link a Working Thread
 			for (URL link : links)
@@ -283,9 +264,6 @@ public class MTInvertedIndex extends InvertedIndex
 					break;
 				}
 			}
-			
-			// Release the Write Lock
-//			lock.write().unlock();
 			
 			content = HtmlCleaner.stripTags(content);
 			content = HtmlCleaner.stripEntities(content);
