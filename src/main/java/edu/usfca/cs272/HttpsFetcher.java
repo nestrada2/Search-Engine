@@ -140,31 +140,4 @@ public class HttpsFetcher {
 
 		return results;
 	}
-
-	/**
-	 * Demonstrates the {@link #fetchUrl(URL)} method.
-	 *
-	 * @param args unused
-	 * @throws Exception if unable to fetch url
-	 */
-	public static void main(String[] args) throws Exception {
-		String[] urls = new String[] { "http://www.cs.usfca.edu/", // 302 -> https
-				"https://www.cs.usfca.edu/", // 302 -> myusf
-				"https://www.cs.usfca.edu/~cs272/", // 200
-				"https://www.cs.usfca.edu/~cs272/simple/double_extension.html.txt", // text/plain
-				"https://www.cs.usfca.edu/~cs272/nowhere.html" // 404
-		};
-
-		for (String url : urls) {
-			System.out.println(url);
-
-			var results = fetchUrl(url);
-
-			for (var entry : results.entrySet()) {
-				System.out.println(entry.getKey() + ": " + entry.getValue());
-			}
-
-			System.out.println();
-		}
-	}
 }
