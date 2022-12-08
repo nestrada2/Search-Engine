@@ -152,7 +152,7 @@ public class PrettyJsonWriter
 	}
 	
 	/**
-	 * Writes the map's elements as a pretty JSON object.
+	 * Writes the elements as a pretty JSON object.
 	 *
 	 * @param elements the elements to write
 	 * @param writer the writer to use
@@ -160,6 +160,10 @@ public class PrettyJsonWriter
 	 *   inner elements are indented by one, and the last bracket is indented at
 	 *   the initial indentation level
 	 * @throws IOException if an IO error occurs
+	 *
+	 * @see Writer#write(String)
+	 * @see #writeIndent(Writer, int)
+	 * @see #writeIndent(String, Writer, int)
 	 */
 	public static void writeMap(Map<String, Object> elements,
 								   Writer writer, int indent) throws IOException {
@@ -182,8 +186,7 @@ public class PrettyJsonWriter
 			// Loop through the Map's Key-Value Pairs
 			for (Map.Entry<String, Object> entry: elements.entrySet())
 			{
-				/* ----- Format Map's Keys ----- */
-				
+				// Format Map's Key
 				if (indent == 0)
 				{
 					writeIndent(writer, 1);
@@ -197,28 +200,22 @@ public class PrettyJsonWriter
 
 				writer.write(": ");
 				
-				/* ----- Format Map's Values ----- */
-				
-				// Use Object because Value can be either an 'int' (count), 'double' (score) or 'String' (document)
 				Object value = entry.getValue();
 				
-				// Map's Value is a Number
+				// Format Map's Value
 				if (value instanceof Number)
 				{
-					// Score
 					if (value instanceof Double)
 					{
 						writer.write(String.format("%.8f", value));
 					}
 					else
 					{
-						// Count
-						writeIndent(value.toString(), writer, 0);
+					writeIndent(value.toString(), writer, 0);
 					}
 				}
 				else
 				{
-					// Document
 					writeQuote(value.toString(), writer, 0);
 				}
 				
@@ -233,6 +230,7 @@ public class PrettyJsonWriter
 			}
 
 			writer.write("\n");
+
 			writeIndent("}", writer, indent);
 		}
 	}
@@ -376,6 +374,10 @@ public class PrettyJsonWriter
 			{
 				// Inner Map
 				Map<String, ? extends Collection<? extends Number>> innerMap = invertedIndex.get(key);
+	
+				int innerMapLength = innerMap.size();
+				int innerIdx = 0;
+
 
 				writeQuote(key, writer, indent + 1);
 				writer.write(": ");
@@ -434,18 +436,21 @@ public class PrettyJsonWriter
 				// Format Query
 				writeQuote(query, writer, indent + 1);
 				writer.write(": ");
-				writeIndent("[\n", writer, 0);		
-				
+
+				writeIndent("[\n", writer, 0);
+
 				// Set of Entries
 				TreeSet<Entry> scores = queryCalculation.get(query);
 				
 				int inner_map_length = scores.size();
 				int inner_idx = 0;
 				
+
 				// Loop through the Entries
 				for (Entry score : scores)
 				{
 					writeIndent(writer, indent + 2);
+
 					
 					// Writes the Entry's Elements as a Pretty JSON Object
 					writeMap(score.toMap(), writer, indent + 2);

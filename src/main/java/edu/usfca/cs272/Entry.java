@@ -84,9 +84,9 @@ public class Entry implements Comparable<Entry>
 	}
 	
 	/**
-	 * creates a map mapping entries to their count, score, and document
+	 * Writes an Entry as a JSON object
 	 * 
-	 * @return a TreeMap of the entries
+	 * @return map of string to value for the entry
 	 * @throws IOException if an IO error occurs
 	 */
 	public Map<String, Object> toMap() throws IOException

@@ -70,20 +70,6 @@ public class InvertedIndex
 		return word_count.getWordCount();
 	}
 	
-	/**
-	 * Provides a view only copy of the inverted index's keys in alphabetical order
-	 * 
-	 * @return a list of the inverted index's keys (words)
-	 */
-	public List<String> getSortedKeys()
-	{
-		// Turn Key Set to a List
-		List<String> sorted_keys = new ArrayList<>(inverted_index.keySet());
-		
-		Collections.sort(sorted_keys);
-		
-		return Collections.unmodifiableList(sorted_keys);
-	}
 	
 	/**
 	 * Provides a view only copy of the inverted index's keys 
