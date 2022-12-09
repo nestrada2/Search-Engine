@@ -64,6 +64,8 @@ public class MTInvertedIndex extends InvertedIndex
 	 * 
 	 * @param word is a key that will be added to the inverted index
 	 */
+	// TODO I think you forgot to lock?
+	// TODO instead of copying the code from the original, you should just be called super.add (because you're already extending InvertedIndex.java
 	public void add(String word)
 	{
 		inverted_index.putIfAbsent(word, new TreeMap<String, ArrayList<Integer>>()); 
@@ -76,6 +78,12 @@ public class MTInvertedIndex extends InvertedIndex
 	 * @param document is the value of the inner map
 	 * @param position is the index of the given word in the given document
 	 */
+	// TODO instead of copying the code from the original, you should just be called super.add (because you're already extending InvertedIndex.java
+	// TODO try {
+	//   doStuff
+	// } finally {
+	//	lock.write().unlock()
+	// }
 	public void add(String word, String document, int position)
 	{
 		// Acquire the Write Lock
@@ -175,7 +183,10 @@ public class MTInvertedIndex extends InvertedIndex
 				String document = current_path.toString();
 				
 				// Build the Inverted Index
-				add(list, document);	
+				// TODO (optional) this implementation is high contention
+				// - the faster thing to do, is actually create a new index per task/thread
+				// - And then when it's done, merge it into the "main" index
+				add(list, document);
 			} 
 			catch (IOException e) 
 			{
