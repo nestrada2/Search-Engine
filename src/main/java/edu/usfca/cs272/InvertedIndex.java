@@ -178,7 +178,7 @@ public class InvertedIndex
 	}
 	
 	/**
-	 * Adds to the Inverted Index 
+	 * Adds the words of 1 entire document to the inverted index 
 	 * 
 	 * @param list is a collection of words from a file
 	 * @param document is the name of the current document

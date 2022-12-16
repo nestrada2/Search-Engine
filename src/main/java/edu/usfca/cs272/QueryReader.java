@@ -217,7 +217,7 @@ public class QueryReader
 	 * @param query is the user's query
 	 * @return a set of entries 
 	 */
-	public Set<Entry> getScoreOneQuery(String query)
+	public Set<Entry> getResultsForOneQuery(String query)
 	{
 		return Collections.unmodifiableNavigableSet(this.scores.get(query));
 	}

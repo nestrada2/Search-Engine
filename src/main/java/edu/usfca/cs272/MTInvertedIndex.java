@@ -245,6 +245,7 @@ public class MTInvertedIndex extends InvertedIndex
 			// Add all the Cleaned and Stemmed English Words of the Current File in a new ArrayList 
 			ArrayList<String> list;
 
+			// Fetching the Actual HTML content from that URL up to 3 Redirects
 			var results = HtmlFetcher.fetch(current_url, 3);
 
 			if (results == null)
@@ -264,6 +265,7 @@ public class MTInvertedIndex extends InvertedIndex
 			// Loop through the Links and Give each Link a Working Thread
 			for (URL link : links)
 			{
+				// Acquire the Read Lock - Need to Lock because these are Shared Variables (total and max crawl)
 				lock.read().lock();
 				
 				if (total_crawl < max_crawl)
@@ -277,7 +279,10 @@ public class MTInvertedIndex extends InvertedIndex
 						// Acquire the Write Lock
 						lock.write().lock();
 						
+						// Add Link to the Work Queue to be Processed
 						multithreading.execute(new HtmlTask(link));
+						
+						/// Increment Total URL Crawled
 						total_crawl += 1;
 						
 						// Add to the List

@@ -70,7 +70,7 @@ public class Driver
 	 */
 	public static void main(String[] args) 
 	{
-		/* -------------------- Global Classes -------------------- */
+		/* -------------------- Local Variables -------------------- */
 		
 		/**
 		 * Argument Parser: Pass in the Command Line Arguments to Parse
@@ -86,9 +86,7 @@ public class Driver
 		 * Query Reader: Reads the Queries to be used for Search, Stems Each Word, and Adds Each Stem Word to a List
 		 */
 		QueryReader query_reader;
-		
-		/* -------------------- Global Variables -------------------- */
-		
+			
 		/**
 		 * Initial Webpage/URL the Inverted Index should Start Web Crawling
 		 */
@@ -166,7 +164,6 @@ public class Driver
 			{
 				System.out.println("Did not specifiy a webpage.");
 				
-				// Terminate the Program
 				return;
 			}
 			
@@ -399,7 +396,7 @@ public class Driver
 			}	
 		}
 		
-/* -------------------- Server -------------------- */
+		/* -------------------- Server -------------------- */
 		
 		if (parse.hasFlag("-server"))
 		{

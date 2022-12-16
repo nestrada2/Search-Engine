@@ -61,16 +61,21 @@ public class SearchEngineServer
 		lock = new ReadWriteLock();
 		
 		ServletHandler handler = new ServletHandler();
+		
+		// Applications with these URLs
 		handler.addServletWithMapping(SearchEngineGetServlet.class, "/get_search");
 		handler.addServletWithMapping(SearchEnginePostServlet.class, "/post_search");
 
+		// Server Contains the Applications
 		server.setHandler(handler);
 		
+		// Starts Listening
 		server.start();
 		
 		// Automatically Multithreaded because Servlets typically Run on Multithreaded Servers
 		log.info("Server: {} with {} threads", server.getState(), server.getThreadPool().getThreads());
 		
+		// Wait for the Server to Finish
 		server.join();
 	}	
 
@@ -209,12 +214,15 @@ public class SearchEngineServer
 	 * @param request is the user's requested information
 	 * @param response is the results of the user's inquiry
 	 * @param html is the string results of the response
-	 * @throws IOException if the attributes of the HTTP servlet can't be read
+	 * @throws IOException if the response can't be written
 	 */
 	public static void processingQueryData(HttpServletRequest request, HttpServletResponse response, String html) throws IOException
 	{
+		// Getting the Input from the User
 		String query = request.getParameter("query");
 		log.info("{}", query);
+		
+		// Search Results as an HTML Contained in a Mutable String
 		StringBuilder results_html = new StringBuilder();
 		
 		// First Time Getting the Form
@@ -254,9 +262,9 @@ public class SearchEngineServer
 				String query_key = query_reader.queryKey(clean_line);
 				
 				// Stores the Current User's Query's Count, Score, and Document
-				Set<Entry> query_score = query_reader.getScoreOneQuery(query_key);
+				Set<Entry> query_score = query_reader.getResultsForOneQuery(query_key);
 				
-				// Error Message to User if Enter an Empty String or Word not Found
+				// Message for No Matches for Word
 				if (query_score.isEmpty())
 				{
 					results_html.append("No results were found");
