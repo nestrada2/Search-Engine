@@ -230,7 +230,7 @@ public class SearchEngineServer
 			// Stems Each Query (Word) in English and Stores it in a TreeSet
 			Set<String> clean_line = WordCleaner.uniqueStems(query);
 			
-			// Not Multithreaded because it has deal with One Query
+			// Not MTQueryReader because it has deal with One Query
 			QueryReader query_reader = new QueryReader();
 			
 			// Store Queries in this Data Structure because 

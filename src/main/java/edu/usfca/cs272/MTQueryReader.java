@@ -45,7 +45,6 @@ public class MTQueryReader extends QueryReader
 	 */
 	public void search(InvertedIndex inverted_index, List<Set<String>> list_of_queries, boolean is_partial) 
 	{
-		
 		// Looping through the List of Queries 
 		for (Set<String> query : list_of_queries)
 		{
@@ -58,26 +57,7 @@ public class MTQueryReader extends QueryReader
 	}
 	
 	/**
-	 * Builds the queries TreeMap mapping queries to its document and search count
-	 * 
-	 * @param inverted_index is the inverted index
-	 * @param query 
-	 * @param is_partial is checking if to calculate for exact or partial search
-	 * @return 
-	 */
-	public Task search(InvertedIndex inverted_index, Set<String> query, boolean is_partial) 
-	{
-		Task task = new Task(query, inverted_index, is_partial);
-		// Adds a Work (or Task) Request to the Queue
-		multithreading.execute(task);
-		
-		// Don't need Join because Server Running Indefinite
-		return task;
-	}
-	
-	
-	/**
-	 * Inner Task Processes 1 Query
+	 * Inner Task Processes One Query
 	 */
 	public class Task implements Runnable
 	{
@@ -85,10 +65,12 @@ public class MTQueryReader extends QueryReader
 		 * A set of queries
 		 */
 		Set<String> query;
+		
 		/**
 		 * Inverted Index
 		 */
 		InvertedIndex inverted_index;
+		
 		/**
 		 * Checks which Search Operation to Perform Exact or Partial
 		 */

@@ -212,9 +212,9 @@ public class QueryReader
 	}
 	
 	/**
-	 * Provides a view only copy of the set of entries
+	 * Provides a view only copy of the set of entries for one query
 	 * 
-	 * @param query is the user's queries
+	 * @param query is the user's query
 	 * @return a set of entries 
 	 */
 	public Set<Entry> getScoreOneQuery(String query)
