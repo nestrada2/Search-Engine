@@ -6,6 +6,7 @@ import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +30,7 @@ public class QueryReader
 	protected TreeMap<String, TreeMap<String, Integer>> query_calculation;
 	
 	/**
-	 * Stores a Mapping of each Entry to it's Score
+	 * Stores a Mapping of each Query Word to it's Entry Data (Score, Count, Document)
 	 */
 	protected TreeMap<String, TreeSet<Entry>> scores;
 	
@@ -63,7 +64,7 @@ public class QueryReader
 			// Keep Looping through the User's Queries
 			while ((line = reader.readLine()) != null)
 			{
-				// Stems Each Query (Word) in English
+				// Stems Each Query (Word) in English and Stores it in a TreeSet
 				Set<String> clean_line = WordCleaner.uniqueStems(line);
 				
 				// If the User's Query are Empty and Continue to Next Iteration
@@ -81,6 +82,23 @@ public class QueryReader
 	}
 	
 	/**
+	 * Converts the user's queries from a set to a string
+	 * 
+	 * @param query is a set of the user's queries
+	 * @return a string version of the user's queries
+	 */
+	public String queryKey(Set<String> query)
+	{
+		// Character Class Trying to Catch "[,]"
+		String treeset_regex = "[,\\[\\]]";
+		
+		// When using the toString() Method to a TreeSet it Adds "[,]" so Remove It
+		String complete_query = query.toString().replaceAll(treeset_regex, "");
+		
+		return complete_query;
+	}
+	
+	/**
 	 * Builds the queries TreeMap mapping queries to its document and search count
 	 * 
 	 * @param inverted_index is the inverted index
@@ -92,11 +110,8 @@ public class QueryReader
 		// Looping through the List of Queries 
 		for (Set<String> query : list_of_queries)
 		{
-			// Character Class Trying to Catch "[,]"
-			String treeset_regex = "[,\\[\\]]";
-			
-			// When using the toString() Method to a TreeSet it Adds "[,]" so Remove It
-			String complete_query = query.toString().replaceAll(treeset_regex, "");
+			// Converts the Set of Queries to a String
+			String complete_query = queryKey(query);
 			
 			// Skip this Query if it Already Been Seen
 			if (query_calculation.containsKey(complete_query)) 
@@ -113,6 +128,7 @@ public class QueryReader
 			// Looping through the Words of One Query
 			for (String query_word : query)
 			{
+				// Set of Query Words which are Also in the Inverted Index
 				Set<String> matching_keys;
 				
 				/* -------------------- Exact Search -------------------- */
@@ -141,7 +157,7 @@ public class QueryReader
 					matching_keys = inverted_index.getByPrefix(query_word);
 				}
 				
-				// Loop through the Inverted Index's Words
+				// Loop through the Stem Query Words which are in the Inverted Index
 				for (String stem_word : matching_keys)
 				{
 					// All the Documents for that Specific Stem Word that contains that Query Word: Inner Map of Inverted Index
@@ -193,6 +209,17 @@ public class QueryReader
 			
 			this.scores.put(query, scores);
 		}
+	}
+	
+	/**
+	 * Provides a view only copy of the set of entries
+	 * 
+	 * @param query is the user's queries
+	 * @return a set of entries 
+	 */
+	public Set<Entry> getScoreOneQuery(String query)
+	{
+		return Collections.unmodifiableNavigableSet(this.scores.get(query));
 	}
 	
 	/**

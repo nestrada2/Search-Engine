@@ -14,10 +14,12 @@ public class Entry implements Comparable<Entry>
 	 * The Calculated Score for the Entry
 	 */
 	double score;
+	
 	/**
 	 * The Number of Times the Entry is in the Document
 	 */
 	int count;
+	
 	/**
 	 * The Filename
 	 */
@@ -38,6 +40,7 @@ public class Entry implements Comparable<Entry>
 	@Override
 	public int compareTo(Entry e) 
 	{
+		// Compare by Scores: Descending Order (Highest to Lowest)
 		if (score > e.getScore())
 		{
 			return -1;
@@ -46,6 +49,7 @@ public class Entry implements Comparable<Entry>
 		{
 			return 1;
 		}
+		// If Scores are Tied, Compare by Count: Descending Order (Highest to Lowest)
 		else if (count > e.getCount())
 		{
 			return -1;
@@ -55,7 +59,7 @@ public class Entry implements Comparable<Entry>
 			return 1;
 		}
 	
-		
+		// If Scores and Counts are Tied, Compare by Document: Ascending Order (Alphabetical Order)
 		return document.compareTo(e.getDocument());
 	}
 	
@@ -84,7 +88,7 @@ public class Entry implements Comparable<Entry>
 	}
 	
 	/**
-	 * Writes an Entry as a JSON object
+	 * Creates a TreeMap of entries mapping an entry to its count, score, and document
 	 * 
 	 * @return map of string to value for the entry
 	 * @throws IOException if an IO error occurs

@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -22,21 +23,19 @@ public class MTInvertedIndex extends InvertedIndex
 	 * Worker Threads
 	 */
 	WorkQueue multithreading;
+	
 	/**
 	 * Lock Object Controls Access of the Shared Resources Among the Worker Threads
 	 */
 	ReadWriteLock lock;
-
+	
 	/**
-	 * 
-	 */
-	boolean is_http = false;
-	/**
-	 * 
+	 * Total Number of URLs to Crawl
 	 */
 	int max_crawl;
+	
 	/**
-	 * 
+	 * Keep Track of Current URLs Crawled
 	 */
 	int total_crawl;
 	
@@ -49,7 +48,7 @@ public class MTInvertedIndex extends InvertedIndex
 	 * Instantiates the work queue and lock object
 	 * 
 	 * @param threads is the number of worker threads
-	 * @param max_crawl maximum urls to fetch
+	 * @param max_crawl maximum URLs to fetch
 	 */
 	public MTInvertedIndex(int threads, int max_crawl)
 	{
@@ -60,52 +59,26 @@ public class MTInvertedIndex extends InvertedIndex
 	}
 	
 	/**
-	 * Adds the word to the inverted index
-	 * 
-	 * @param word is a key that will be added to the inverted index
-	 */
-	// TODO I think you forgot to lock?
-	// TODO instead of copying the code from the original, you should just be called super.add (because you're already extending InvertedIndex.java
-	public void add(String word)
-	{
-		inverted_index.putIfAbsent(word, new TreeMap<String, ArrayList<Integer>>()); 
-	}
-	
-	/**
 	 * Adds a word, a document, and the position(s) to the inverted index 
 	 * 
 	 * @param word is the key that will be added to the inverted index
 	 * @param document is the value of the inner map
 	 * @param position is the index of the given word in the given document
 	 */
-	// TODO instead of copying the code from the original, you should just be called super.add (because you're already extending InvertedIndex.java
-	// TODO try {
-	//   doStuff
-	// } finally {
-	//	lock.write().unlock()
-	// }
 	public void add(String word, String document, int position)
 	{
 		// Acquire the Write Lock
 		lock.write().lock();
 		
-		// Add Current "word" as a Key to the inverted index
-		add(word);
-		
-		// Counts Words in a Specific Document
-		word_count.increment(document);
-		
-		// Grabs the HashMap which is the Value from the inverted index: Document, Positions
-		Map<String, ArrayList<Integer>> values = inverted_index.get(word);
-
-		// Store the Document as a Key to the HashMap "values" which is the Values of the inverted index
-		values.putIfAbsent(document, new ArrayList<Integer>());
-
-		// Get the Position of the Current word in the Document and Add it to the HashMap as a Value
-		values.get(document).add(position);
-		
-		// Release the Write Lock
-		lock.write().unlock();
+		try
+		{
+			super.add(word, document, position);
+		}
+		finally
+		{
+			// Release the Write Lock
+			lock.write().unlock();
+		}
 	}
 	
 	/**
@@ -131,7 +104,7 @@ public class MTInvertedIndex extends InvertedIndex
 	/**
 	 * Loops through the URLs and adds its respected values to the inverted index
 	 * 
-	 * @param seed is the starting url for web crawling
+	 * @param seed is the starting URL for web crawling
 	 * @throws IOException if there is an IO error
 	 */
 	public void addHtml(URL seed) throws IOException
@@ -139,6 +112,7 @@ public class MTInvertedIndex extends InvertedIndex
 		// Adds a Work (or Task) Request to the Queue
 		multithreading.execute(new HtmlTask(seed));
 		
+		// Initialized the Total Crawl: Seed is the 1st URL to Begin Crawling
 		total_crawl = 1;
 		
 		url_list.add(seed);
@@ -182,11 +156,14 @@ public class MTInvertedIndex extends InvertedIndex
 				// The Filename
 				String document = current_path.toString();
 				
-				// Build the Inverted Index
-				// TODO (optional) this implementation is high contention
-				// - the faster thing to do, is actually create a new index per task/thread
-				// - And then when it's done, merge it into the "main" index
-				add(list, document);
+				// Create a New Inverted Index for Each Thread
+				InvertedIndex thread_inverted_index = new InvertedIndex();
+				
+				// Build's the Thread's Inverted Index for 1 Document
+				thread_inverted_index.add(list, document);
+				
+				// Merges Thread's Inverted Index into Main Inverted Index
+				merge(thread_inverted_index);
 			} 
 			catch (IOException e) 
 			{
@@ -196,20 +173,65 @@ public class MTInvertedIndex extends InvertedIndex
 	}
 	
 	/**
+	 * Merges the values of the thread inverted index into the main inverted index
+	 * 
+	 * @param thread_inverted_index is the current thread's inverted index
+	 */
+	public void merge(InvertedIndex thread_inverted_index)
+	{
+		// Words/Keys of the Thread Inverted Index
+		Set<String> thread_keys = thread_inverted_index.getKeys();
+		
+		// Loop through the Tread's Inverted Index
+		for (String word : thread_keys)
+		{
+			// Acquire the Write Lock
+			lock.write().lock();
+			try
+			{
+				// Ensures that Thread's Word is in the Main Inverted Index
+				add(word);
+			}
+			finally
+			{
+				// Release the Write Lock
+				lock.write().unlock();
+			}
+			
+			// Inner Map - Documents and Positions
+			Map<String, ArrayList<Integer>> inner_map = thread_inverted_index.get(word);
+			
+			// Loop through the Documents
+			for (String doc : inner_map.keySet())
+			{
+				// List of the Word's Positions
+				ArrayList<Integer> positions = inner_map.get(doc);
+				
+				// Loop through the Positions
+				for (Integer position : positions)
+				{
+					// Added Current Thread's Position Data to the Main Inverted Index
+					add(word, doc, position);
+				}
+			}
+		}	
+	}
+	
+	/**
 	 * Worker Thread to process 1 single URL
 	 *
 	 */
 	public class HtmlTask implements Runnable 
 	{
 		/**
-		 * Current Webpage
+		 * Current Web Page
 		 */
 		public URL current_url;
 
 		/**
-		 * Instantiates the current url
+		 * Instantiates the current URL
 		 * 
-		 * @param current_url is the current webpage
+		 * @param current_url is the current Web Page
 		 */
 		public HtmlTask(URL current_url)
 		{
@@ -230,10 +252,13 @@ public class MTInvertedIndex extends InvertedIndex
 				return;
 			}
 			
+			// Store the Content of the Current URL
 			String content;
+			
+			// Remove the HTML Block Elements: e.g. <p>, <div>, <span>
 			content = HtmlCleaner.stripBlockElements(results);
 			
-			// Getting the Links inside the Html Code
+			// Getting the Links inside the HTML Code
 			List<URL> links = LinkFinder.listUrls(current_url, content);
 			
 			// Loop through the Links and Give each Link a Working Thread
@@ -276,7 +301,10 @@ public class MTInvertedIndex extends InvertedIndex
 				}
 			}
 			
+			// Remove the HTML Tags: e.g. </a>, <!DOCTYPE>, <center>
 			content = HtmlCleaner.stripTags(content);
+			
+			// Remove the HTML Entities: e.g. &amp, &nbsp, &copy, 
 			content = HtmlCleaner.stripEntities(content);
 			
 			// Cleans and Stems Each Word in English of the Contents of the Current URL
@@ -285,8 +313,14 @@ public class MTInvertedIndex extends InvertedIndex
 			// The URL
 			String url = current_url.toString();
 			
-			// Build the Inverted Index
-			add(list, url);
+			// Current Thread's Inverted Index
+			InvertedIndex thread_inverted_index = new InvertedIndex();
+			
+			// Builds the Current Thread's Inverted Index for 1 URL
+			thread_inverted_index.add(list, url);
+			
+			// Merges the Content of the Current Thread's Inverted Index into the Main Inverted Index
+			merge(thread_inverted_index);
 		}
 	}
 }

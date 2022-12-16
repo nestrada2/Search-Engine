@@ -205,15 +205,18 @@ public class PrettyJsonWriter
 				// Format Map's Value
 				if (value instanceof Number)
 				{
+					// Score
 					if (value instanceof Double)
 					{
 						writer.write(String.format("%.8f", value));
 					}
+					// Count
 					else
 					{
 					writeIndent(value.toString(), writer, 0);
 					}
 				}
+				// Document
 				else
 				{
 					writeQuote(value.toString(), writer, 0);
@@ -374,10 +377,6 @@ public class PrettyJsonWriter
 			{
 				// Inner Map
 				Map<String, ? extends Collection<? extends Number>> innerMap = invertedIndex.get(key);
-	
-				int innerMapLength = innerMap.size();
-				int innerIdx = 0;
-
 
 				writeQuote(key, writer, indent + 1);
 				writer.write(": ");

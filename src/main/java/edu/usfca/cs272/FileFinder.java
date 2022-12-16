@@ -49,7 +49,7 @@ public class FileFinder
 				// Check if File is a Text File or Directory
 				if (isTextFile(current_path) || isDirectory(current_path))
 				{
-					// Recursive Call "listSourceFiles", Go Deeper in the Directory, Thus Add 1 to the Depth
+					// Recursive Call "listSourceFiles", Go Deeper in the Directory
 					List<Path> sub_list = listSourceFiles(current_path);
 					
 					// Add the List of the Source Files in the Sub Directories to the List 

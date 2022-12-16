@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Class responsible for running this project based on the provided command-line
@@ -45,6 +47,21 @@ public class Driver
 	private static final int DEFAULT_THREADS = 5;
 	
 	/**
+	 * Default Max if the Total Number of URLs to Crawl is not Provided
+	 */
+	private static final int DEFAULT_MAX = 1;
+	
+	/**
+	 * Default Web Sever Port if the Port is not Provided
+	 */
+	private static final int DEFAULT_PORT = 8080;
+	
+	/**
+	 * Logging Messages for Debugging
+	 */
+	public static Logger log = LogManager.getLogger();
+	
+	/**
 	 * Initializes the classes necessary based on the provided command-line
 	 * arguments. This includes (but is not limited to) how to build or search an
 	 * inverted index.
@@ -52,9 +69,11 @@ public class Driver
 	 * @param args flag/value pairs used to start this program
 	 */
 	public static void main(String[] args) 
-	{		
+	{
+		/* -------------------- Global Classes -------------------- */
+		
 		/**
-		 * Homework 1: Argument Parser - Pass in the Command Line Arguments to Parse
+		 * Argument Parser: Pass in the Command Line Arguments to Parse
 		 */
 		ArgumentParser parse = new ArgumentParser(args);
 		
@@ -68,16 +87,45 @@ public class Driver
 		 */
 		QueryReader query_reader;
 		
+		/* -------------------- Global Variables -------------------- */
+		
+		/**
+		 * Initial Webpage/URL the Inverted Index should Start Web Crawling
+		 */
 		String seed = null;
+		
+		/**
+		 * Number of Worker Threads to Run
+		 */
 		int threads = 1;
-		int max = 1;
+		
+		/**
+		 * Total Number of URLs to Crawl
+		 */
+		int max = DEFAULT_MAX;
+		
+		/**
+		// Default Search Operation for Query
+		 * 
+		 */
+		boolean is_partial = true;
+		
+		/**
+		 * File to Store the Results of the Search Operation for Query
+		 */
+		String query_file = null;
+		
+		/**
+		 * Web Server Port to Accept Socket Connections
+		 */
+		int port = 8080;
 		
 		
 		/* -------------------- Parsing -------------------- */
 		
 		// Parses the Arguments to Flags/Values
 		parse.parse(args);
-		
+			
 		/* -------------------- Multithreading -------------------- */
 
 		if (parse.hasFlag("-threads"))
@@ -98,14 +146,22 @@ public class Driver
 				
 				threads = DEFAULT_THREADS;
 			}
-			
 		}
+		// Server/HTML Flag(s) are Provided but not Threads Flag
+		else if (parse.hasFlag("-server") || parse.hasFlag("-html"))
+		{
+			threads = DEFAULT_THREADS;
+			
+			// User did NOT provide Number of Worker Threads
+			System.out.println("Did not specifiy number of worker threads, so will default to " + DEFAULT_THREADS + ".");
+		}
+		
 		
 		/* -------------------- HTML -------------------- */
 		
 		if (parse.hasFlag("-html"))
 		{	
-			// User did NOT provide a webpage
+			// User did NOT Provide a Webpage
 			if (!parse.hasValue("-html"))
 			{
 				System.out.println("Did not specifiy a webpage.");
@@ -116,32 +172,31 @@ public class Driver
 			
 			// Webpage
 			seed = parse.getString("-html");
-			
-			// Didn't Specify Number of Worker Threads
-			if (!parse.hasValue("-threads"))
-			{
-				System.out.println("Did not specifiy number of worker threads, so will default to " + DEFAULT_THREADS + ".");
-				
-				threads = DEFAULT_THREADS;
-			}
 		}
 		
 		/* -------------------- Max -------------------- */
 		
 		if (parse.hasFlag("-max"))
-		{	
-			// Max Number of Webpages
+		{
+			// User Did NOT Specify Total Number of URLs to Crawl
+			if (!parse.hasValue("-max"))
+			{
+				System.out.println("Did not specifiy total number of URLs to crawl, so will default to " + DEFAULT_MAX + ".");
+			}
+						
+			// Total Number of URLs to Crawl
 			if (parse.hasValue("-max"))
 			{
-				max = parse.getInteger("-max", 1);
+				max = parse.getInteger("-max", DEFAULT_MAX);
 			}
 		}
 		
-		// Seed - Implies that we are using Html
+		// Checks if Program is using Multithreading, and A Non-Null Seed Implies that we are Web Crawling and using the HTML Flag
 		if (threads > 1 || seed != null)
 		{		
 			// Multithreaded Inverted Index
 			inverted_index = new MTInvertedIndex(threads, max);
+			System.out.println("Number of threads: " + threads);
 			
 			// Multithreaded Query Reader
 			query_reader = new MTQueryReader(threads);
@@ -156,7 +211,7 @@ public class Driver
 			query_reader = new QueryReader();
 		}
 		
-		
+		/* -------------------- Parsing File -------------------- */
 		
 		// Value of the Specified Flag
 		Path path = parse.getPath("-text");
@@ -190,8 +245,6 @@ public class Driver
 		
 		if (!path_list.isEmpty())
 		{
-			
-		
 			try
 			{
 				inverted_index.add(path_list);
@@ -202,11 +255,16 @@ public class Driver
 			}
 		}
 		
+		/* -------------------- Web Crawling -------------------- */
+		
 		if (seed != null)
 		{
 			try 
 			{
+				// Convert Seed String to a URL
 				URL seed_url = new URL(seed);
+				
+				// Starts Web Crawling from Seed URL
 				((MTInvertedIndex) inverted_index).addHtml(seed_url);
 			} 
 			catch (MalformedURLException e) 
@@ -215,19 +273,8 @@ public class Driver
 			}
 			catch (IOException e) 
 			{
-				System.out.println("IO error while processing webpage.");
+				System.out.println("An error occurred while processing the webpage.");
 			}
-		}
-		
-		/* -------------------- JSON Formatting -------------------- */
-		
-		// Default Search Operation for Query
-		boolean is_partial = true;
-		
-		// Checks if Flag is Exact Search Operation
-		if (parse.hasFlag("-exact"))
-		{
-			is_partial = false;
 		}
 		
 		/* -------------------- Index: JSON Formatting -------------------- */
@@ -238,7 +285,7 @@ public class Driver
 			// User did NOT Provided an Index File
 			if (!parse.hasValue("-index"))
 			{
-				System.out.println("Did NOT specificy an index file, so using " + DEFAULT_JSON_FILE);
+				System.out.println("Did NOT specificy an index file, so using " + DEFAULT_JSON_FILE + ".");
 			}
 			
 			// Gets the Value of the Specified File/Directory
@@ -263,7 +310,7 @@ public class Driver
 			// User did NOT Provided a Counts File
 			if (!parse.hasValue("-counts"))
 			{
-				System.out.println("Did NOT specificy a counts file, so using " + DEFAULT_COUNTS_FILE);
+				System.out.println("Did NOT specificy a counts file, so using " + DEFAULT_COUNTS_FILE + ".");
 			}
 			
 			// Gets the Value of the Specified File/Directory
@@ -281,38 +328,43 @@ public class Driver
 			}	
 		}
 		
-		/* -------------------- Query: JSON Formatting -------------------- */
+		/* -------------------- Query Calculation: Exact or Partial Search -------------------- */
+		
+		// Checks if Flag is Exact Search Operation
+		if (parse.hasFlag("-exact"))
+		{
+			is_partial = false;
+		}
 		
 		if (parse.hasFlag("-query"))
-		{
-			if (parse.hasValue("-query"))
+		{			
+			// Gets the Name of the File Containing the User's Queries
+			query_file = parse.getString("-query");
+			
+			// User did NOT Provided a Query File
+			if (query_file == null)
 			{
-				// Gets the Name of the File Containing the User's Queries
-				String query_file = parse.getString("-query");
-				
-				// Convert a String to a Path
-				Path query_path = Paths.get(query_file);
-				
-				// Used to Store all the Query Words in a List
-				List<Set<String>> queries;
-				
-				try
-				{
-					// Reads and Steams the Query File to a List of a Set 
-					queries = query_reader.clean(query_path);
-					
-					// Calculates Partial or Exact Search Results 
-					query_reader.search(inverted_index, queries, is_partial);
-				}
-				catch (IOException e)
-				{
-					System.out.println("Could not read query file \"" + query_file + "\"");
-				}
-			}
-			else
-			{
-				// User did NOT Provided a Query File
 				System.out.println("Could NOT calculate because did NOT specifiy where are the queries.");
+				return;
+			}
+			
+			// Convert a String to a Path
+			Path query_path = Paths.get(query_file);
+			
+			// Used to Store all the Query Words in a List
+			List<Set<String>> queries;
+			
+			try
+			{
+				// Reads and Steams the Query File to a List of a Set 
+				queries = query_reader.clean(query_path);
+				
+				// Calculates Partial or Exact Search Results 
+				query_reader.search(inverted_index, queries, is_partial);
+			}
+			catch (IOException e)
+			{
+				System.out.println("Could not read query file \"" + query_file + "\"");
 			}
 		}
 		
@@ -323,7 +375,7 @@ public class Driver
 			// User did NOT Provided a Results File
 			if (!parse.hasValue("-results"))
 			{
-				System.out.println("Did NOT Specificy a results file, so using " + DEFAULT_RESULTS_FILE);
+				System.out.println("Did NOT Specificy a results file, so using " + DEFAULT_RESULTS_FILE + ".");
 			}
 			
 			// Gets the Value of the Specified File/Directory
@@ -345,7 +397,35 @@ public class Driver
 			{
 				System.out.println("Could NOT write to results file \"" + results_file + "\"");
 			}	
-		}		
+		}
+		
+/* -------------------- Server -------------------- */
+		
+		if (parse.hasFlag("-server"))
+		{
+			// User did NOT provide a Port Number
+			if (!parse.hasValue("-server"))
+			{
+				System.out.println("Did not specifiy a port, so will default to " + DEFAULT_PORT + ".");
+			}
+			
+			// Port Number
+			port = parse.getInteger("-server", DEFAULT_PORT);
+			
+			try
+			{
+				// Starting up the Server
+				SearchEngineServer server = new SearchEngineServer(inverted_index, port);
+			} 
+			catch (InterruptedException e) 
+			{
+				System.out.println("The server got interupted.");
+			}
+			catch (Exception e) 
+			{
+				System.out.println("Unable to start server.");
+			}
+		}
 	}
 }
 

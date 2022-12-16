@@ -24,12 +24,12 @@ public class InvertedIndex
 	/**
 	 * Stores the Mapping from Words to the Documents and Positions
 	 */
-	protected static TreeMap<String, TreeMap<String, ArrayList<Integer>>> inverted_index;
+	protected TreeMap<String, TreeMap<String, ArrayList<Integer>>> inverted_index;
 	
 	/**
 	 * Counts the Number of Words in a Document
 	 */
-	protected static WordCount word_count;
+	protected WordCount word_count;
 	
 	/**
 	 * Instantiates the Inverted Index and Word Count

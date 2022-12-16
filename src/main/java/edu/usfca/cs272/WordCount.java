@@ -19,7 +19,7 @@ public class WordCount
 	/**
 	 * Stores the Mapping from Documents and Number of Words 
 	 */
-	private static TreeMap<String, Integer> word_count;
+	private TreeMap<String, Integer> word_count;
 	
 	/**
 	 * Instantiates the Word Count

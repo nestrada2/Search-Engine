@@ -14,10 +14,12 @@ import org.apache.logging.log4j.Logger;
  *   "https://web.archive.org/web/20210126172022/https://www.ibm.com/developerworks/library/j-jtp0730/index.html">
  *   Java Theory and Practice: Thread Pools and Work Queues</a>
  *
+ * @author Nino Estrada
  * @author CS 272 Software Development (University of San Francisco)
  * @version Fall 2022
  */
-public class WorkQueue {
+public class WorkQueue 
+{
 	/** Workers that wait until work (or tasks) are available. */
 	private final Worker[] workers;
 
@@ -64,7 +66,8 @@ public class WorkQueue {
 	 *
 	 * @see #WorkQueue(int)
 	 */
-	public WorkQueue() {
+	public WorkQueue() 
+	{
 		this(DEFAULT);
 	}
 
@@ -73,13 +76,15 @@ public class WorkQueue {
 	 *
 	 * @param threads number of worker threads; should be greater than 1
 	 */
-	public WorkQueue(int threads) {
+	public WorkQueue(int threads) 
+	{
 		this.tasks = new LinkedList<Runnable>();
 		this.workers = new Worker[threads];
 		this.shutdown = false;
 
 		// start the threads so they are waiting in the background
-		for (int i = 0; i < threads; i++) {
+		for (int i = 0; i < threads; i++) 
+		{
 			workers[i] = new Worker();
 			workers[i].start();
 		}
@@ -93,10 +98,12 @@ public class WorkQueue {
 	 *
 	 * @param task work request (in the form of a {@link Runnable} object)
 	 */
-	public void execute(Runnable task) {
+	public void execute(Runnable task) 
+	{
 		incrementPending();
 
-		synchronized (tasks) {
+		synchronized (tasks) 
+		{
 			tasks.addLast(task);
 			tasks.notifyAll();
 		}
@@ -129,18 +136,22 @@ public class WorkQueue {
 	 * the worker threads to terminate. The work queue cannot be reused after this
 	 * call completes.
 	 */
-	public void join() {
-		try {
+	public void join() 
+	{
+		try 
+		{
 			finish();
 			shutdown();
 
-			for (Worker worker : workers) {
+			for (Worker worker : workers) 
+			{
 				worker.join();
 			}
 
 			log.debug("All worker threads terminated.");
 		}
-		catch (InterruptedException e) {
+		catch (InterruptedException e) 
+		{
 			System.err.println("Warning: Work queue interrupted while joining.");
 			log.catching(Level.DEBUG, e);
 			Thread.currentThread().interrupt();
@@ -151,12 +162,15 @@ public class WorkQueue {
 	 * Asks the queue to shutdown. Any unprocessed work (or tasks) will not be
 	 * finished, but threads in-progress will not be interrupted.
 	 */
-	public void shutdown() {
+	public void shutdown() 
+	{
 		// safe to do unsynchronized due to volatile keyword
 		shutdown = true;
 
 		log.debug("Work queue triggering shutdown...");
-		synchronized (tasks) {
+		
+		synchronized (tasks) 
+		{
 			tasks.notifyAll();
 		}
 	}
@@ -166,7 +180,8 @@ public class WorkQueue {
 	 *
 	 * @return number of worker threads
 	 */
-	public int size() {
+	public int size() 
+	{
 		return workers.length;
 	}
 
@@ -179,22 +194,29 @@ public class WorkQueue {
 	 * queue. These threads will continue running in the background until a
 	 * shutdown is requested.
 	 */
-	private class Worker extends Thread {
+	private class Worker extends Thread 
+	{
 		/**
 		 * Initializes a worker thread with a custom name.
 		 */
-		public Worker() {
+		public Worker() 
+		{
 			setName("Worker" + getName());
 		}
 
 		@Override
-		public void run() {
+		public void run() 
+		{
 			Runnable task = null;
 
-			try {
-				while (true) {
-					synchronized (tasks) {
-						while (tasks.isEmpty() && !shutdown) {
+			try 
+			{
+				while (true) 
+				{
+					synchronized (tasks) 
+					{
+						while (tasks.isEmpty() && !shutdown) 
+						{
 							log.debug("Work queue worker waiting...");
 							tasks.wait();
 						}
@@ -202,31 +224,37 @@ public class WorkQueue {
 						// exit while for one of two reasons:
 						// (a) queue has work, or (b) shutdown has been called
 
-						if (shutdown) {
+						if (shutdown) 
+						{
 							log.debug("Worker detected shutdown...");
 							break;
 						}
-						else {
+						else 
+						{
 							log.debug("Worker found {} tasks...", tasks.size());
 							task = tasks.removeFirst();
 						}
 					}
 
-					try {
+					try 
+					{
 						log.trace("Work queue worker running work.");
 						task.run();
 					}
-					catch (RuntimeException e) {
+					catch (RuntimeException e) 
+					{
 						// catch runtime exceptions to avoid leaking threads
 						System.err.printf("Warning: %s encountered an exception while running.%n", this.getName());
 						log.catching(Level.DEBUG, e);
 					}
-					finally {
+					finally 
+					{
 						decrementPending();
 					}
 				}
 			}
-			catch (InterruptedException e) {
+			catch (InterruptedException e) 
+			{
 				// causes early termination of worker threads
 				System.err.printf("Warning: %s interrupted while waiting.%n", this.getName());
 				log.catching(Level.DEBUG, e);
