@@ -1,4 +1,4 @@
-<h1 style="text-align: center">Search Engine</h1>
+<h1 align="center">Search Engine</h1>
 
 This project is a smaller-scale version of a search engine that helps people find the information they are looking for using keywords. It returns a list of pages that contain the word or phrase they were searching for.
 
