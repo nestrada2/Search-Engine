@@ -6,7 +6,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.release>17</maven.compiler.release>
+		<!-- <maven.compiler.release>17</maven.compiler.release> -->
 		<compileOptionXlint>-Xlint:all,-processing</compileOptionXlint>
 		<compileOptionXdoclint>-Xdoclint:all/private</compileOptionXdoclint>
 		<compileOptionFail>false</compileOptionFail>
@@ -76,7 +76,7 @@
 					</configuration>
 					</execution>
 				</executions>
-    </plugin>
+    		</plugin>
 		</plugins>
 	</build>
 
