@@ -1,5 +1,7 @@
 package edu.usfca.cs272;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -43,7 +45,7 @@ public class SearchEngineServer
 	/**
 	 * The Web Page's Title
 	 */
-	private static final String TITLE = "Search Engine";
+	private static final String TITLE = "Rooster";
 	
 	/**
 	 * Initializes the Server
@@ -94,35 +96,8 @@ public class SearchEngineServer
 				throws ServletException, IOException {
 			log.info(request);
 
-			String html = """
-					<!DOCTYPE html>
-					<html lang="en">
-
-					<head>
-					  <meta charset="utf-8">
-					  <title>%1$s</title>
-					</head>
-
-					<body>
-					<h1>%1$s</h1>
-
-					<form method="get" action="/get_search">
-					  <p>
-					    <input type="text" name="query" size="50"></input>
-					  </p>
-
-					  <p>
-					    <input type="submit">Search</input>
-					  </p>
-					</form>
-
-					<pre>
-					%2$s
-					</pre>
-
-					</body>
-					</html>
-					""";
+			// String html = fileToString("/../../../../resources/getSearch.html");
+			String html = fileToString("getSearch.html");
 
 			processingQueryData(request, response, html);
 		}
@@ -143,31 +118,8 @@ public class SearchEngineServer
 				throws ServletException, IOException {
 			log.info(request);
 
-			String html = """
-					<!DOCTYPE html>
-					<html lang="en">
-
-					<head>
-					  <meta charset="utf-8">
-					  <title>%1$s</title>
-					</head>
-
-					<body>
-					<h1>%1$s</h1>
-
-					<form method="post" action="/post_search">
-					  <p>
-					    <input type="text" name="query" size="50"></input>
-					  </p>
-
-					  <p>
-					    <button>Search</button>
-					  </p>
-					</form>
-
-					</body>
-					</html>
-					""";
+			// String html = fileToString("../../../../resources/doGet.html");
+			String html = fileToString("resources/doGet.html");
 
 			// Send the Response Object back to the User
 			PrintWriter out = response.getWriter();
@@ -182,27 +134,8 @@ public class SearchEngineServer
 				throws ServletException, IOException {
 			log.info(request);
 
-			String html = """
-					<!DOCTYPE html>
-					<html lang="en">
-
-					<head>
-					  <meta charset="utf-8">
-					  <title>%1$s</title>
-					</head>
-
-					<body>
-					<h1>%1$s</h1>
-
-					<pre>
-					%2$s
-					</pre>
-
-					<p>(<a href="/post_search">back to form</a>)</p>
-
-					</body>
-					</html>
-					""";
+			// String html = fileToString("../../../../resources/doPost.html");
+			String html = fileToString("resources/doPost.html");
 
 			processingQueryData(request, response, html);
 		}
@@ -302,6 +235,31 @@ public class SearchEngineServer
 
 		response.setContentType("text/html");
 		response.setStatus(HttpServletResponse.SC_OK);
+	}
+
+	public static String fileToString(String fileName)
+	{
+		String content = "";
+		try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+			StringBuilder stringBuilder = new StringBuilder();
+			String line = null;
+			String ls = System.getProperty("line.separator");
+			while ((line = reader.readLine()) != null) {
+				stringBuilder.append(line);
+				stringBuilder.append(ls);
+			}
+			// delete the last new line separator
+			stringBuilder.deleteCharAt(stringBuilder.length() - 1);
+			reader.close();
+
+			content = stringBuilder.toString();
+			return content;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		};
+
+		return content;
 	}
 }
 

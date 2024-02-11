@@ -16,6 +16,11 @@
 		<!-- assumes SearchEngine and SearchEngineTest are in the same directory -->
 		<sourceDirectory>src/main/java</sourceDirectory>
 		<testSourceDirectory>../project-tests/src/test/java</testSourceDirectory>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+			</resource>
+		</resources>
 
 		<plugins>
 			<plugin>
@@ -24,6 +29,8 @@
 				<version>3.10.1</version>
 
 				<configuration>
+					<release>17</release>
+					
 					<compilerArgs>
 						<arg>${compileOptionXlint}</arg>
 						<arg>${compileOptionXdoclint}</arg>
@@ -81,6 +88,18 @@
 	</build>
 
 	<dependencies>
+		<!-- Velocity Template Engine
+		<dependency>
+  			<groupId>org.apache.velocity</groupId>
+  			<artifactId>velocity-engine-core</artifactId>
+  			<version>2.3</version>
+		</dependency>
+
+		<dependency>
+  			<groupId>org.apache.velocity.tools</groupId>
+  			<artifactId>velocity-tools-generic</artifactId>
+  			<version>3.1</version>
+		</dependency> -->
 		<!-- for unit testing -->
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
@@ -158,5 +177,7 @@
 			<artifactId>mariadb-java-client</artifactId>
 			<version>3.0.7</version>
 		</dependency>
+
+		
 	</dependencies>
 </project>
