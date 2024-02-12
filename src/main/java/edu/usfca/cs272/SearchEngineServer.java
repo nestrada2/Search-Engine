@@ -1,22 +1,20 @@
 package edu.usfca.cs272;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Set;
-
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletHandler;
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Set;
 
 /**
  * A simple example of using Jetty and servlets to use an HTML form.
@@ -97,7 +95,7 @@ public class SearchEngineServer
 			log.info(request);
 
 			// String html = fileToString("/../../../../resources/getSearch.html");
-			String html = fileToString("getSearch.html");
+			String html = fileToString("/getSearch.html");
 
 			processingQueryData(request, response, html);
 		}
@@ -119,7 +117,7 @@ public class SearchEngineServer
 			log.info(request);
 
 			// String html = fileToString("../../../../resources/doGet.html");
-			String html = fileToString("resources/doGet.html");
+			String html = fileToString("/doGet.html");
 
 			// Send the Response Object back to the User
 			PrintWriter out = response.getWriter();
@@ -135,7 +133,7 @@ public class SearchEngineServer
 			log.info(request);
 
 			// String html = fileToString("../../../../resources/doPost.html");
-			String html = fileToString("resources/doPost.html");
+			String html = fileToString("/doPost.html");
 
 			processingQueryData(request, response, html);
 		}
@@ -240,20 +238,8 @@ public class SearchEngineServer
 	public static String fileToString(String fileName)
 	{
 		String content = "";
-		try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
-			StringBuilder stringBuilder = new StringBuilder();
-			String line = null;
-			String ls = System.getProperty("line.separator");
-			while ((line = reader.readLine()) != null) {
-				stringBuilder.append(line);
-				stringBuilder.append(ls);
-			}
-			// delete the last new line separator
-			stringBuilder.deleteCharAt(stringBuilder.length() - 1);
-			reader.close();
-
-			content = stringBuilder.toString();
-			return content;
+		try (var in = SearchEngineServer.class.getResourceAsStream(fileName)) {
+			return new String(in.readAllBytes(), StandardCharsets.UTF_8);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

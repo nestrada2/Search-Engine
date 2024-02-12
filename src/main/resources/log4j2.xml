@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE log4j:configuration>
+<!-- Status determines which *internal* log4j log messages are included. -->
+<Configuration status="WARN">
+    <Appenders>
+        <!-- We can make the console output more user-friendly if we want. -->
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%level: %m %throwable{short.message} %n">
+            </PatternLayout>
+        </Console>
+
+        <!-- We can still keep details in a file log for debugging. -->
+        <File name="FileLog" fileName="debug.log" append="false">
+
+            <!-- Format code of How to Print it Out -->
+            <PatternLayout pattern="[00%1sequenceNumber %level{length = 2}] %file:%line %thread - %message%throwable{3}%n">
+            </PatternLayout>
+        </File>
+    </Appenders>
+
+    <Loggers>
+        <!-- You can modify per-class logging levels if you want. -->
+        <Logger name="edu.usfca.cs272.LoggerSetup" level="FATAL" additivity="false">
+
+            <!-- If the level of the message is fatal java calls it to the console. -->
+            <AppenderRef ref="Console" level="FATAL"/>
+        </Logger>
+
+        <!-- This is the configuration used by all other loggers. In case they don't have settings-->
+        <Root level="ALL">
+            <!-- Info is going to the console -->
+            <AppenderRef ref="Console" level="INFO"/>
+
+            <!-- All is going to the filelog so everything other than info -->
+            <AppenderRef ref="FileLog" level="ALL"  />
+        </Root>
+    </Loggers>
+</Configuration>
+
+        <!-- Resources
+                log4j2.xml starting point - https://github.com/usf-cs272-fall2022/lectures/blob/main/Logging/src/main/resources/log4j2.xml
+                patterns - https://logging.apache.org/log4j/log4j-2.8.2/manual/layouts.html
+        -->

@@ -16,11 +16,11 @@
 		<!-- assumes SearchEngine and SearchEngineTest are in the same directory -->
 		<sourceDirectory>src/main/java</sourceDirectory>
 		<testSourceDirectory>../project-tests/src/test/java</testSourceDirectory>
-		<resources>
-			<resource>
-				<directory>src/main/resources</directory>
-			</resource>
-		</resources>
+<!--		<resources>-->
+<!--			<resource>-->
+<!--				<directory>src/main/resources</directory>-->
+<!--			</resource>-->
+<!--		</resources>-->
 
 		<plugins>
 			<plugin>
@@ -65,6 +65,12 @@
 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.3.1</version>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
 				<version>2.4</version>
 				<executions>
@@ -84,6 +90,16 @@
 					</execution>
 				</executions>
     		</plugin>
+
+			<plugin>
+        		<groupId>com.heroku.sdk</groupId>
+        		<artifactId>heroku-maven-plugin</artifactId>
+        		<version>3.0.7</version>
+
+				<configuration>
+  					<appName>rooster-search</appName>
+				</configuration>
+      		</plugin>
 		</plugins>
 	</build>
 

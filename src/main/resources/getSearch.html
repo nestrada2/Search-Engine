@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <!-- <script src="https://kit.fontawesome.com/288aaa2fb8.js" crossorigin="anonymous"></script> -->
+    <!-- <link rel="icon" type="image/x-icon" href="searchengin.svg"> -->
+    <link rel="stylesheet" href="https://unpkg.com/terminal.css@0.7.4/dist/terminal.min.css" />
+<!--    <link rel="icon" type="image/x-icon" href="/Volumes/NINO'S SSD 1/Search Engine/project-nestrada2/src/main/resources/rooster.jpeg">-->
+<!--    <script src="https://kit.fontawesome.com/288aaa2fb8.js" crossorigin="anonymous"></script>-->
+<!--    <script src="https://unpkg.com/typed.js@2.1.0/dist/typed.umd.js"></script>-->
+    <title>%1$s</title>
+
+    <style>
+            body {
+                text-align: center;
+            }
+            div h1 {
+                font-family: 'Courier New', Courier, monospace;
+                font-weight: normal;
+                color: #e8e9ed;
+                /* text-align: center; */
+
+            }
+
+            .test {
+                /* height: 400px; */
+                margin-top: 100px;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center;
+                 /* bottom: 0px; */
+
+            }
+
+            .test p {
+                text-align: center;
+            }
+
+            /* .test::before {
+                content: "> ";
+            } */
+
+            .logo {
+                display: none !important;
+            }
+            form {
+                /* display: inline-block; */
+
+            }
+
+            input {
+                border: 2px solid #e8e9ed;
+            }
+            input:hover {
+                box-shadow: 0 2px 2px 1px #e2e5ee;
+            }
+            input[type=text] {
+                border: 2px solid #e8e9ed;
+            }
+            input[type=text]:focus {
+                border: 2px solid #e8e9ed;
+            }
+
+            .btn {
+                background-color: #e8e9ed;
+                color: #222225;
+
+
+            }
+
+            .btn:hover {
+                box-shadow: 0 2px 3px 1px #e2e5ee;
+
+            }
+            :root {
+                --block-background-color: #222225;
+            }
+            body {
+                background-color: #222225;
+                color: #e8e9ed;
+            }
+            p {
+                color: #e8e9ed;
+            }
+            pre {
+                border: none;
+            }
+            form {
+                background-color: transparent;
+                color: #727578;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+               /* height: 0px; */
+            }
+
+            .center {
+                margin-top: 30px;
+                display: block;
+                text-align: center;
+            }
+
+            input {
+                background-color: #222225;
+                color: #e8e9ed;
+            }
+            #element {
+                color: #62c4ff;
+
+            }
+
+            .typed-cursor {
+                color: #62c4ff;
+            }
+            .testing h1{
+                color: red;
+                margin-right: 500px;
+            }
+            #search::after {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-direction: column;
+                height: 100vh;
+            }
+        </style>
+</head>
+
+<body>
+
+<div class="test">
+    <!-- <h1>>  </h1> -->
+
+    <div class="testing">
+
+    </div>
+
+    <h1>%1$s</h1>
+    <!-- <h1 id="element"></h1> -->
+
+</div>
+
+
+<form method="get" action="/get_search">
+    <div class="form-group">
+
+        <div>
+            <input type="text" name="query" size="50" placeholder="rooster me" list="search"></input>
+
+                                   <datalist id="search">
+                                        <option value="hello world"></option>
+                                        <option value="can i google google?"></option>
+                                        <option value="HTML tags"></option>
+                                        <option value="VS Code cheat sheet"></option>
+                                        <option value="i love elephants"></option>
+                                        <option value="the number one cardinal rule"></option>
+                                        <option value="national pizza deals"></option>
+                                        <option value="four"></option>
+                                        <option value="balloon"></option>
+                                        <option value="but, dad, don't we eat the antelope?"></option>
+
+                                   </datalist>
+
+        </div>
+
+        <div class="center">
+
+            <button class="btn btn-default" type="submit">Search</button>
+            <button class="btn btn-default" type="submit">Feeling Lucky...Punk</button>
+
+        </div>
+
+        <p>
+            <!-- <button class="btn btn-default" type="submit">Search</button> -->
+
+        </p>
+
+    </div>
+
+</form>
+
+<pre>
+        %2$s
+    </pre>
+
+</body>
+
+</html>
