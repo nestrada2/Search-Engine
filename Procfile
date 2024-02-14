@@ -1,1 +1,1 @@
-web: java $JAVA_OPTS -jar target/dependency/jetty-runner.jar --port $PORT target/*.jar
+web: java -jar target/SearchEngine-2022-08.jar -html "https://usf-cs272-fall2022.github.io/project-web/input/simple/" -max 15 -threads 3 -server 8080

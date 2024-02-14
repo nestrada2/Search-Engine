@@ -8,11 +8,14 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.ServletHandler;
+import org.eclipse.jetty.servlet.DefaultServlet;
+import org.eclipse.jetty.servlet.ServletContextHandler;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Set;
 
@@ -60,11 +63,18 @@ public class SearchEngineServer
 		Server server = new Server(port);
 		lock = new ReadWriteLock();
 		
-		ServletHandler handler = new ServletHandler();
+		ServletContextHandler handler = new ServletContextHandler();
+		handler.setContextPath("/");
 		
 		// Applications with these URLs
-		handler.addServletWithMapping(SearchEngineGetServlet.class, "/get_search");
-		handler.addServletWithMapping(SearchEnginePostServlet.class, "/post_search");
+		handler.addServlet(SearchEngineGetServlet.class, "/get_search");
+		handler.addServlet(SearchEnginePostServlet.class, "/post_search");
+
+		Path pwdPath = new File(System.getProperty("user.dir")).toPath().toRealPath();
+		String path = pwdPath.toUri().toASCIIString() + "target";
+		System.out.println("Path: " + path);
+		var defaultServletHolder = handler.addServlet(DefaultServlet.class, "/static/*");
+		defaultServletHolder.setInitParameter("resourceBase", path);
 
 		// Server Contains the Applications
 		server.setHandler(handler);
@@ -94,8 +104,7 @@ public class SearchEngineServer
 				throws ServletException, IOException {
 			log.info(request);
 
-			// String html = fileToString("/../../../../resources/getSearch.html");
-			String html = fileToString("/getSearch.html");
+			String html = fileToString("/templates/getSearch.html");
 
 			processingQueryData(request, response, html);
 		}
@@ -116,8 +125,7 @@ public class SearchEngineServer
 				throws ServletException, IOException {
 			log.info(request);
 
-			// String html = fileToString("../../../../resources/doGet.html");
-			String html = fileToString("/doGet.html");
+			String html = fileToString("/templates/doGet.html");
 
 			// Send the Response Object back to the User
 			PrintWriter out = response.getWriter();
@@ -132,8 +140,7 @@ public class SearchEngineServer
 				throws ServletException, IOException {
 			log.info(request);
 
-			// String html = fileToString("../../../../resources/doPost.html");
-			String html = fileToString("/doPost.html");
+			String html = fileToString("/templates/doPost.html");
 
 			processingQueryData(request, response, html);
 		}

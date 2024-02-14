@@ -1,0 +1,112 @@
+ body {
+    text-align: center;
+}
+div h1 {
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: normal;
+    color: #e8e9ed;
+    /* text-align: center; */
+
+}
+
+.test {
+    /* height: 400px; */
+    margin-top: 100px;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center;
+     /* bottom: 0px; */
+
+}
+
+.test p {
+    text-align: center;
+}
+
+/* .test::before {
+    content: "> ";
+} */
+
+.logo {
+    display: none !important;
+}
+form {
+    /* display: inline-block; */
+
+}
+
+input {
+    border: 2px solid #e8e9ed;
+}
+input:hover {
+    box-shadow: 0 2px 2px 1px #e2e5ee;
+}
+input[type=text] {
+    border: 2px solid #e8e9ed;
+}
+input[type=text]:focus {
+    border: 2px solid #e8e9ed;
+}
+
+.btn {
+    background-color: #e8e9ed;
+    color: #222225;
+
+
+}
+
+.btn:hover {
+    box-shadow: 0 2px 3px 1px #e2e5ee;
+
+}
+:root {
+    --block-background-color: #222225;
+}
+body {
+    background-color: #222225;
+    color: #e8e9ed;
+}
+p {
+    color: #e8e9ed;
+}
+pre {
+    border: none;
+}
+form {
+    background-color: transparent;
+    color: #727578;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+   /* height: 0px; */
+}
+
+.center {
+    margin-top: 30px;
+    display: block;
+    text-align: center;
+}
+
+input {
+    background-color: #222225;
+    color: #e8e9ed;
+}
+#element {
+    color: #62c4ff;
+
+}
+
+.typed-cursor {
+    color: #62c4ff;
+}
+.testing h1{
+    color: red;
+    margin-right: 500px;
+}
+#search::after {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    height: 100vh;
+}
